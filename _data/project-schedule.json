@@ -1,1 +1,26 @@
-
+{
+  "projects": [
+    {
+      "id": 1,
+      "name": "Infraestructura Cloud",
+      "budget": {
+        "hh_rate_uf": 0.25,
+        "hh_planned": 120,
+        "hh_used": 45
+      },
+      "dates": {
+        "start": "2026-04-15",
+        "contract_end": "2026-06-01"
+      },
+      "phases": [
+        {
+          "phase_name": "Configuración Core",
+          "tasks": [
+            {"task_name": "Setup de VPC", "status": "completada", "hh_spent": 10},
+            {"task_name": "Seguridad de Red", "status": "en proceso", "hh_spent": 5}
+          ]
+        }
+      ]
+    }
+  ]
+}
