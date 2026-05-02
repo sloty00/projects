@@ -1,101 +1,147 @@
-import json
-import os
-import sys
-from datetime import datetime
+---
+layout: default
+---
 
-class ProjectEngine:
-    """Motor para la gestión de proyectos: Niveles, Finanzas (UF) y Plazos."""
-    
-    def __init__(self, data_path='_data/project-schedule.json'):
-        self.data_path = data_path
-        self.rate_hh_uf = 0.25 # Tarifa: 1/4 de UF por H/H
-        self.data = self._load()
+<style>
+  /* Reset y Base */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { 
+    background-color: #0a0a0c !important; 
+    color: #ffffff !important; 
+    font-family: 'Inter', -apple-system, sans-serif;
+    display: flex !important;
+    justify-content: center !important;
+    padding: 40px 20px !important;
+    min-height: 100vh;
+  }
 
-    def _load(self):
-        if os.path.exists(self.data_path):
-            with open(self.data_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return {"projects": [], "metadata": {}}
+  .glass-container { 
+    background: rgba(255, 255, 255, 0.02) !important; 
+    border: 1px solid rgba(255, 255, 255, 0.1) !important; 
+    padding: 2.5rem !important; 
+    border-radius: 24px !important; 
+    width: 100% !important; 
+    max-width: 950px !important; 
+    backdrop-filter: blur(12px);
+  }
 
-    def save(self):
-        self.data['metadata']['last_updated'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(self.data_path, 'w', encoding='utf-8') as f:
-            json.dump(self.data, f, indent=2, ensure_ascii=False)
+  /* Header */
+  .dashboard-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .dashboard-header h1 { color: #00d4ff; font-size: 2.2rem; }
+  .dashboard-header p { color: #a0a0a0; font-size: 0.9rem; }
 
-    def calculate_metrics(self, project):
-        """Calcula días de desfase, progreso y consumo de UF."""
-        # 1. Cálculo de Días (Lógica de plazos)
-        contract_end = datetime.strptime(project['dates']['contract_end'], '%Y-%m-%d')
-        today = datetime.now()
-        # Calculamos la diferencia exacta en días
-        diff_days = (contract_end - today).days
+  /* Métricas L1 */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .metric-card {
+    background: rgba(255, 255, 255, 0.04);
+    padding: 1.2rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .metric-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+  .metric-value { font-size: 1.3rem; font-weight: 700; margin-top: 5px; }
+
+  /* Niveles L2 y L3 */
+  .phase-container {
+    margin-top: 2rem;
+    padding-left: 1.5rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .phase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .task-list { list-style: none; padding-left: 0.5rem; }
+  .task-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.6rem;
+    border-radius: 8px;
+    margin-bottom: 0.4rem;
+    background: rgba(255, 255, 255, 0.02);
+    font-size: 0.9rem;
+  }
+
+  /* Progress Bar */
+  .progress-bar-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #00d4ff, #00ff88); transition: width 0.5s ease; }
+</style>
+
+<div class="glass-container">
+    <header class="dashboard-header">
+        <h1>Project Dashboard</h1>
+        <p>Sistema de control GitOps • Última actualización: {{ site.data.project-schedule.metadata.last_updated }}</p>
+    </header>
+
+    {% for project in site.data.project-schedule.projects %}
+    <section class="project-block" style="margin-bottom: 4rem;">
         
-        # 2. Avance y H/H (L2 y L3)
-        total_tasks = 0
-        completed_tasks = 0
-        total_hh_spent = 0
-        
-        for phase in project.get('phases', []):
-            tasks = phase.get('tasks', [])
-            phase_total = len(tasks)
-            phase_done = len([t for t in tasks if t['status'] == 'completada'])
-            
-            # Progreso de la fase
-            phase['progress'] = (phase_done / phase_total * 100) if phase_total > 0 else 0
-            
-            # Acumuladores para el proyecto (L1)
-            total_tasks += phase_total
-            completed_tasks += phase_done
-            total_hh_spent += sum(t.get('hh_spent', 0) for t in tasks)
+        <!-- Nivel 1: Métricas de Proyecto -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span class="metric-label">Días de Plazo</span>
+                <div class="metric-value" style="color: {% if project.metrics.days_diff >= 0 %}#00ff88{% else %}#ff4d4d{% endif %};">
+                    {{ project.metrics.days_diff }} d {% if project.metrics.days_diff >= 0 %}a favor{% else %}atrasado{% endif %}
+                </div>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Facturación (H/H)</span>
+                <div class="metric-value" style="color: #00d4ff;">{{ project.metrics.total_uf }} UF</div>
+                <small style="font-size: 0.7rem; opacity: 0.5;">{{ project.metrics.total_hh }} hrs @ 0.25 UF</small>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Avance Global</span>
+                <div class="metric-value">{{ project.metrics.total_progress | round }}%</div>
+                <div class="progress-bar-bg">
+                    <div class="progress-fill" style="width: {{ project.metrics.total_progress }}%;"></div>
+                </div>
+            </div>
+        </div>
 
-        # 3. Guardar métricas calculadas en el L1
-        project['metrics'] = {
-            "days_diff": diff_days,
-            "total_progress": (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0,
-            "total_hh": total_hh_spent,
-            "total_uf": round(total_hh_spent * self.rate_hh_uf, 4),
-            "status_label": "Al día" if diff_days >= 0 else "Retrasado"
-        }
-        return project
+        <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">{{ project.name }}</h2>
 
-    def add_project(self, name, start_date, contract_end):
-        """Añade un proyecto con la estructura de 3 niveles solicitada."""
-        new_project = {
-            "id": len(self.data['projects']) + 1,
-            "name": name,
-            "dates": {
-                "start": start_date,
-                "contract_end": contract_end,
-                "real_end": None
-            },
-            "phases": [], # L2: Fases (se añaden después)
-            "metrics": {}  # Se llenará con calculate_metrics
-        }
-        
-        # Calculamos métricas iniciales
-        new_project = self.calculate_metrics(new_project)
-        self.data['projects'].append(new_project)
-        self.save()
-        print(f"Proyecto '{name}' creado. Plazo: {new_project['metrics']['days_diff']} días.")
+        <!-- Nivel 2: Fases -->
+        {% for phase in project.phases %}
+        <div class="phase-container">
+            <div class="phase-header">
+                <h4 style="color: #a0a0a0; text-transform: uppercase; font-size: 0.8rem;">Fase: {{ phase.phase_name }}</h4>
+                <span style="font-size: 0.8rem; color: #00ff88;">{{ phase.progress | round }}%</span>
+            </div>
 
-    def update_all_metrics(self):
-        """Recalcula todo (útil para actualizar los 'días debidos' cada mañana)."""
-        for i in range(len(self.data['projects'])):
-            self.data['projects'][i] = self.calculate_metrics(self.data['projects'][i])
-        self.save()
-        print("Métricas de todos los proyectos actualizadas al día de hoy.")
-
-if __name__ == "__main__":
-    engine = ProjectEngine()
-    
-    # Comando para actualizar fechas y días debidos automáticamente
-    if len(sys.argv) == 2 and sys.argv[1] == "--sync":
-        engine.update_all_metrics()
-        
-    # Comando para crear proyecto: python3 manage.py "Nombre" "2026-05-01" "2026-06-01"
-    elif len(sys.argv) > 3:
-        engine.add_project(sys.argv[1], sys.argv[2], sys.argv[3])
-    else:
-        print("Acciones disponibles:")
-        print("  Crear: python3 manage_projects.py <nombre> <fecha_inicio_YYYY-MM-DD> <fecha_contrato_YYYY-MM-DD>")
-        print("  Sincronizar días: python3 manage_projects.py --sync")
+            <!-- Nivel 3: Tareas -->
+            <ul class="task-list">
+                {% for task in phase.tasks %}
+                <li class="task-item">
+                    <span style="{% if task.status == 'completada' %}opacity: 0.4; text-decoration: line-through;{% endif %}">
+                        • {{ task.task_name }}
+                    </span>
+                    <span style="font-size: 0.75rem; color: #888;">
+                        {{ task.hh_spent }} hrs | 
+                        <strong style="color: {% if task.status == 'completada' %}#00ff88{% else %}#eab308{% endif %};">
+                            {{ task.status }}
+                        </strong>
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </section>
+    {% else %}
+    <div style="text-align: center; padding: 5rem; opacity: 0.4;">
+        <p>No hay proyectos activos.</p>
+        <code>python3 manage_projects.py "Nuevo Proyecto" "2026-05-01" "2026-06-01"</code>
+    </div>
+    {% endfor %}
+</div>
