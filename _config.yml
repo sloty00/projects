@@ -1,3 +1,4 @@
 title: System Engine
 description: Dashboard de gestión técnica
-remote_theme: jekyll/minima # O simplemente comenta la línea
+baseurl: "/projects"
+url: "https://sloty00.github.io"
