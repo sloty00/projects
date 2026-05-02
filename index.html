@@ -3,42 +3,45 @@ layout: default
 ---
 
 <style>
-  /* Reset de márgenes y colores base */
-  * { 
-    margin: 0; 
-    padding: 0; 
-    box-sizing: border-box; 
-  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body { 
     background-color: #0a0a0c !important; 
-    color: #ffffff !important; /* Letras blancas visibles */
-    display: flex !important; 
-    justify-content: center !important; 
-    padding: 40px 20px !important;
-    font-family: sans-serif;
+    color: #ffffff !important; 
+    font-family: 'Inter', -apple-system, sans-serif;
+    display: flex !important;
+    justify-content: center !important; /* Centra horizontal */
+    padding-top: 5vh !important; /* Margen superior proporcional */
+    min-height: 100vh;
   }
 
-  /* Contenedor centrado y con márgenes internos */
   .glass-container { 
-    background: rgba(255, 255, 255, 0.05) !important; 
+    background: rgba(255, 255, 255, 0.03) !important; 
     border: 1px solid rgba(255, 255, 255, 0.1) !important; 
-    padding: 40px !important; 
-    border-radius: 20px !important; 
-    width: 100% !important; 
-    max-width: 800px !important; 
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5) !important;
+    padding: 3rem !important; 
+    border-radius: 24px !important; 
+    width: 95% !important; 
+    max-width: 900px !important; 
+    backdrop-filter: blur(10px);
   }
 
-  h1 { color: #00d4ff !important; margin-bottom: 10px !important; }
-  p { color: #a0a0a0 !important; margin-bottom: 20px !important; }
-  
-  .card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 12px;
-    margin-top: 20px;
+  header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  h1 { 
+    color: #00d4ff !important; 
+    font-size: 2.5rem !important;
+    letter-spacing: -1px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    border: 2px dashed rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
   }
 </style>
 
