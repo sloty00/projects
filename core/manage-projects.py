@@ -1,8 +1,11 @@
 import json
 import os
+import sys
 from datetime import datetime
 
-class VartoBackend:
+class ProjectEngine:
+    """Motor genérico para la gestión de datos de proyectos."""
+    
     def __init__(self, data_path='_data/project-schedule.json'):
         self.data_path = data_path
         self.data = self._load()
@@ -19,23 +22,23 @@ class VartoBackend:
             json.dump(self.data, f, indent=2, ensure_ascii=False)
 
     def add_project(self, name, uf, mora):
-        """Agrega un proyecto con el contrato de datos acordado."""
+        """Añade una entrada al registro de proyectos."""
         new_project = {
             "id": len(self.data['projects']) + 1,
             "name": name,
             "values": {
-                "uf": uf,
-                "mora": mora
+                "uf": float(uf),
+                "mora": float(mora)
             },
-            "status": "Activo"
+            "timestamp": datetime.now().isoformat()
         }
         self.data['projects'].append(new_project)
         self.save()
-        print(f"✅ Proyecto '{name}' inyectado con éxito.")
+        print(f"Registro actualizado: {name}")
 
-# --- BLOQUE DE EJECUCIÓN ---
 if __name__ == "__main__":
-    app = VartoBackend()
-    
-    # Vamos a crear tu primer proyecto de prueba
-    app.add_project(name="Proyecto Alfa - React Hub", uf=35.5, mora=1.2)
+    engine = ProjectEngine()
+    if len(sys.argv) > 3:
+        engine.add_project(sys.argv[1], sys.argv[2], sys.argv[3])
+    else:
+        print("Uso: python3 manage_projects.py <nombre> <uf> <mora>")
