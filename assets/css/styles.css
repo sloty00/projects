@@ -1,39 +1,44 @@
 ---
 ---
+/* El Front Matter de arriba es obligatorio para que Jekyll procese las variables */
+
 :root {
-  --bg-dark: #0a0a0c;
-  --panel-bg: rgba(20, 20, 25, 0.8);
-  --accent: #00d4ff;
-  --text: #ffffff;
-  --text-dim: #a0a0a0;
-  --border: rgba(255, 255, 255, 0.1);
+  --bg-dark: #0a0a0c !important;
+  --panel-bg: rgba(20, 20, 25, 0.9) !important;
+  --accent: #00d4ff !important;
+  --text-main: #ffffff !important;
+  --border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Forzamos el fondo oscuro en todo el documento */
+html, body {
+  background-color: var(--bg-dark) !important;
+  color: var(--text-main) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+  font-family: 'Inter', sans-serif !important;
 }
 
 body {
-  background-color: var(--bg-dark) !important; /* Forzamos el fondo oscuro */
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  margin: 0;
-  padding: 40px;
-  min-height: 100vh;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  padding-top: 50px !important;
 }
 
-/* Reemplaza todo lo anterior por esto para asegurar el control total */
 .glass-container {
-  background: var(--panel-bg);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 30px;
-  max-width: 1000px;
-  margin: auto;
+  background: var(--panel-bg) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 16px !important;
+  padding: 40px !important;
+  width: 90% !important;
+  max-width: 900px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
 }
 
-.status-tag {
-  background: rgba(0, 212, 255, 0.1);
-  color: var(--accent);
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: bold;
+h1, h2, h3, p {
+  color: var(--text-main) !important;
 }
