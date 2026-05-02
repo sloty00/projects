@@ -1,41 +1,34 @@
-name: Agregar Nuevo Proyecto
+name: "System: Add Project Entry"
 
 on:
   workflow_dispatch:
     inputs:
       name:
-        description: 'Nombre del Proyecto'
+        description: 'Nombre del recurso'
         required: true
       uf:
-        description: 'Valor en UF'
+        description: 'Valor UF'
         required: true
-        default: '0.0'
       mora:
-        description: 'Porcentaje de Mora'
+        description: 'Mora (%)'
         required: true
-        default: '0.0'
 
 jobs:
-  update-data:
+  update-system:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout del código
+      - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Configurar Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-
-      - name: Ejecutar Backend de Python
+      - name: Run Engine
+        run: python3 core/manage_projects.py "${{ github.event.inputs.name }}" "${{ github.event.inputs.uf }}" "${{ github.event.inputs.mora }}"
+      - name: Sync Changes
         run: |
-          # Llamamos al script pasando los argumentos
-          python3 core/manage_projects.py "${{ github.event.inputs.name }}" "${{ github.event.inputs.inputs.uf }}" "${{ github.event.inputs.mora }}"
-
-      - name: Commit y Push de los cambios
-        run: |
-          git config --global user.name "Varto Bot"
-          git config --global user.email "bot@varto.cl"
+          git config --global user.name "System-Bot"
+          git config --global user.email "bot@system.local"
           git add _data/project-schedule.json
-          git commit -m "update: nuevo proyecto agregado via Action [${{ github.event.inputs.name }}]"
+          git commit -m "data: manual update [${{ github.event.inputs.name }}]"
           git push
