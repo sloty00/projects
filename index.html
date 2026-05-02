@@ -51,18 +51,28 @@ layout: default
 </header>
 
 <div class="project-grid">
-    {% for project in site.data.project-schedule.projects %}
-    <div class="card">
-        <h3 style="color: #00d4ff; margin-bottom: 10px;">{{ project.name }}</h3>
-        <div style="display: flex; gap: 20px;">
-            <span><strong>UF:</strong> {{ project.values.uf }}</span>
-            <span><strong>Mora:</strong> <span style="color: #ff4d4d;">{{ project.values.mora }}%</span></span>
+    <div class="metrics-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 2rem 0;">
+    
+    <!-- Métrica de Tiempos (Días) -->
+    <div class="metric-card" style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 12px;">
+        <span style="font-size: 0.7rem; color: #a0a0a0; text-transform: uppercase;">Estado de Plazos</span>
+        {% assign contract_date = project.dates.contract_end | date: "%s" %}
+        {% assign today = "now" | date: "%s" %}
+        {% assign diff_days = contract_date | minus: today | divided_by: 86400 %}
+        
+        <div style="font-size: 1.4rem; font-weight: bold; margin-top: 5px; color: {% if diff_days >= 0 %}#00ff88{% else %}#ff4d4d{% endif %};">
+            {{ diff_days }} días {% if diff_days >= 0 %}a favor{% else %}debidos{% endif %}
         </div>
     </div>
-    {% else %}
-    <div style="margin-top: 40px; opacity: 0.5; text-align: center; border: 1px dashed rgba(255,255,255,0.2); padding: 40px;">
-        <p>Sistema a la espera de datos...</p>
-        <code style="background: #000; padding: 5px 10px; border-radius: 4px; color: #00d4ff;">python3 core/manage_projects.py</code>
+
+    <!-- Métrica de Presupuesto (UF) -->
+    <div class="metric-card" style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 12px;">
+        <span style="font-size: 0.7rem; color: #a0a0a0; text-transform: uppercase;">Consumo H/H (Tarifa: 0.25 UF)</span>
+        {% assign total_uf = project.budget.hh_used | times: 0.25 %}
+        <div style="font-size: 1.4rem; font-weight: bold; margin-top: 5px; color: #00d4ff;">
+            {{ total_uf | round: 2 }} UF Consumidas
+        </div>
+        <small style="opacity: 0.5;">Presupuesto Total: {{ project.budget.hh_planned | times: 0.25 }} UF</small>
     </div>
-    {% endfor %}
+</div>
 </div>
