@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>{{ site.title }}</title>
-    <!-- El slash inicial es vital para la ruta en GitHub Pages -->
-    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+    <!-- Usamos la URL absoluta para saltarnos cualquier error de baseurl -->
+    <link rel="stylesheet" href="https://sloty00.github.io/projects/assets/css/style.css">
 </head>
-<body>
+<body style="background-color: #0a0a0c; margin: 0;">
     <div class="glass-container">
         {{ content }}
     </div>
