@@ -1,44 +1,42 @@
 ---
 ---
-/* El Front Matter de arriba es obligatorio para que Jekyll procese las variables */
+/* El Front Matter de arriba es CLAVE para que Jekyll no lo ignore */
 
 :root {
-  --bg-dark: #0a0a0c !important;
-  --panel-bg: rgba(20, 20, 25, 0.9) !important;
-  --accent: #00d4ff !important;
-  --text-main: #ffffff !important;
-  --border-color: rgba(255, 255, 255, 0.1) !important;
+  --bg-dark: #0a0a0c;
+  --panel-bg: rgba(20, 20, 25, 0.9);
+  --accent: #00d4ff;
+  --text-main: #ffffff;
 }
 
-/* Forzamos el fondo oscuro en todo el documento */
-html, body {
-  background-color: var(--bg-dark) !important;
-  color: var(--text-main) !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  height: 100% !important;
-  font-family: 'Inter', sans-serif !important;
+/* Reset total para eliminar márgenes fantasma de Jekyll */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
+  background-color: var(--bg-dark) !important;
   display: flex !important;
-  justify-content: center !important;
+  justify-content: center !important; /* Centra horizontalmente */
   align-items: flex-start !important;
-  padding-top: 50px !important;
+  min-height: 100vh !important;
+  padding: 60px 20px !important;
 }
 
+/* Este es el contenedor que está fallando en tu imagen */
 .glass-container {
   background: var(--panel-bg) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: 16px !important;
+  backdrop-filter: blur(15px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px !important;
   padding: 40px !important;
-  width: 90% !important;
-  max-width: 900px !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
-}
-
-h1, h2, h3, p {
-  color: var(--text-main) !important;
+  
+  /* Esto evita que se pegue al margen izquierdo */
+  width: 100% !important;
+  max-width: 1000px !important; 
+  margin: 0 auto !important; 
+  
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5) !important;
 }
