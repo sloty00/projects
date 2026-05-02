@@ -1,4 +1,5 @@
-title: Varto Project Hub
+title: Project Dashboard
+description: Sistema genérico de gestión de proyectos GitOps
 theme: minima
 plugins:
   - jekyll-feed
