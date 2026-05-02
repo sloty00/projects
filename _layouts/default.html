@@ -2,21 +2,11 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page.title | default: site.title }}</title>
     <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="glass-container">
-        <header style="border-bottom: 1px solid var(--glass-border); margin-bottom: 2rem; padding-bottom: 1rem;">
-            <h1 style="margin: 0; font-size: 1.5rem; color: var(--text-main);">{{ site.title }}</h1>
-            <span class="status-tag">Core: Python & Jekyll</span>
-        </header>
-        
-        <main>
-            {{ content }}
-        </main>
+        {{ content }}
     </div>
 </body>
 </html>
