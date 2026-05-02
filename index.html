@@ -1,24 +1,43 @@
 ---
 layout: default
+title: Panel de Control
 ---
 
-<div class="dashboard-header">
-  <h2>Gestión de Proyectos</h2>
-  <p>Estado global de la cartera</p>
+<div class="dashboard-header" style="margin-bottom: 2rem;">
+    <p style="color: var(--text-dim); margin: 0;">Resumen de registros activos en el sistema.</p>
 </div>
 
 <div class="project-grid">
-  {% for project in site.data.project-schedule.projects %}
-  <div class="glass-container" style="padding: 20px; margin: 0;">
-    <h3 style="margin: 0; color: var(--accent-color);">{{ project.name }}</h3>
-    <p style="color: var(--text-dim); font-size: 0.9rem;">ID: #{{ project.id }}</p>
-    
-    <div class="metrics" style="display: flex; justify-content: space-between; margin-top: 15px;">
-      <span>UF: <strong>{{ project.values.uf }}</strong></span>
-      <span>Mora: <strong style="color: #f87171;">{{ project.values.mora }}%</strong></span>
+    {% for project in site.data.project-schedule.projects %}
+    <div class="glass-container" style="padding: 1.5rem; margin: 0; background: rgba(255, 255, 255, 0.03);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+            <h3 style="margin: 0; font-size: 1.2rem; color: var(--accent-color);">{{ project.name }}</h3>
+            <span style="font-size: 0.7rem; color: var(--text-dim); border: 1px solid var(--glass-border); padding: 2px 8px; border-radius: 4px;">
+                ID: #{{ project.id }}
+            </span>
+        </div>
+
+        <div class="metrics" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="metric-item">
+                <span style="display: block; font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Valor UF</span>
+                <span style="font-size: 1.1rem; font-weight: 600;">{{ project.values.uf }}</span>
+            </div>
+            <div class="metric-item">
+                <span style="display: block; font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Mora</span>
+                <span style="font-size: 1.1rem; font-weight: 600; color: #f87171;">{{ project.values.mora }}%</span>
+            </div>
+        </div>
+
+        {% if project.timestamp %}
+        <div style="margin-top: 1.5rem; padding-top: 0.8rem; border-top: 1px solid var(--glass-border);">
+            <span style="font-size: 0.7rem; color: var(--text-dim);">Actualizado: {{ project.timestamp | date: "%d/%m/%Y %H:%M" }}</span>
+        </div>
+        {% endif %}
     </div>
-  </div>
-  {% else %}
-  <p>No hay proyectos activos. Inicia el backend para agregar uno.</p>
-  {% endfor %}
+    {% else %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; border: 2px dashed var(--glass-border); border-radius: 1rem;">
+        <p style="color: var(--text-dim);">No se encontraron registros activos.</p>
+        <p style="font-size: 0.9rem;">Usa el sistema de automatización para añadir el primero.</p>
+    </div>
+    {% endfor %}
 </div>
