@@ -50,8 +50,7 @@ layout: default
     <p>Registros activos en la base de datos GitOps.</p>
 </header>
 
-<div class="project-grid">
-    <div class="metrics-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 2rem 0;">
+<div class="metrics-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 2rem 0;">
     
     <!-- Métrica de Tiempos (Días) -->
     <div class="metric-card" style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 12px;">
@@ -74,5 +73,4 @@ layout: default
         </div>
         <small style="opacity: 0.5;">Presupuesto Total: {{ project.budget.hh_planned | times: 0.25 }} UF</small>
     </div>
-</div>
 </div>
