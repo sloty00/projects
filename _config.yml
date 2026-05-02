@@ -1,0 +1,4 @@
+title: Varto Project Hub
+theme: minima
+plugins:
+  - jekyll-feed

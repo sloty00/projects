@@ -1,0 +1,24 @@
+---
+layout: default
+---
+
+<div class="dashboard-header">
+  <h2>Gestión de Proyectos</h2>
+  <p>Estado global de la cartera</p>
+</div>
+
+<div class="project-grid">
+  {% for project in site.data.project-schedule.projects %}
+  <div class="glass-container" style="padding: 20px; margin: 0;">
+    <h3 style="margin: 0; color: var(--accent-color);">{{ project.name }}</h3>
+    <p style="color: var(--text-dim); font-size: 0.9rem;">ID: #{{ project.id }}</p>
+    
+    <div class="metrics" style="display: flex; justify-content: space-between; margin-top: 15px;">
+      <span>UF: <strong>{{ project.values.uf }}</strong></span>
+      <span>Mora: <strong style="color: #f87171;">{{ project.values.mora }}%</strong></span>
+    </div>
+  </div>
+  {% else %}
+  <p>No hay proyectos activos. Inicia el backend para agregar uno.</p>
+  {% endfor %}
+</div>
