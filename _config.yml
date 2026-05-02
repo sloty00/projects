@@ -1,5 +1,3 @@
-title: Project Dashboard
-description: Sistema genérico de gestión de proyectos GitOps
-theme: minima
-plugins:
-  - jekyll-feed
+title: System Engine
+description: Dashboard de gestión técnica
+remote_theme: jekyll/minima # O simplemente comenta la línea
