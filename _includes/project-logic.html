@@ -1,26 +1,48 @@
 <script>
-// Configuración de comunicación con el backend (update_manager.py)
-const API_URL = 'http://localhost:5000';
+/**
+ * CONFIGURACIÓN GITOPS (Basado en tu flujo previo)
+ */
+const GITHUB_REPO = "tu-usuario/tu-repositorio"; // Cambia esto
+const GITHUB_TOKEN = "TU_TOKEN_PERSONAL";        // Token con permisos 'workflow'
+const WORKFLOW_ID = "sync-projects.yml";         // Nombre de tu archivo YAML
 
 /**
- * Función genérica para enviar datos al servidor
+ * Función para disparar la acción en GitHub via Payload
  */
-async function sendData(endpoint, data) {
+async function sendToGitOps(action, data) {
+    const url = `https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`;
+    
+    const payload = {
+        ref: 'main', 
+        inputs: {
+            payload: JSON.stringify({
+                action: action,
+                data: data
+            })
+        }
+    };
+
     try {
-        const response = await fetch(`${API_URL}${endpoint}`, {
+        const response = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            headers: {
+                'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
         });
+
         if (response.ok) {
-            location.reload(); // Recarga la página para mostrar los cambios inyectados en el JSON
+            alert("🚀 Acción enviada a GitHub. El Dashboard se actualizará en breve.");
+            // Opcional: podrías cerrar el modal aquí
         } else {
-            const errorText = await response.text();
-            alert("Error al guardar: " + errorText);
+            const errorData = await response.json();
+            alert("❌ Error de GitHub: " + (errorData.message || "No autorizado"));
         }
     } catch (error) {
         console.error("Error de conexión:", error);
-        alert("Error de conexión. Asegúrate de que 'update_manager.py' esté ejecutándose en el puerto 5000.");
+        alert("❌ Error de red al intentar conectar con GitHub.");
     }
 }
 
@@ -34,7 +56,7 @@ function submitProject() {
         end: document.getElementById('p-end').value
     };
     if (!data.name || !data.end) return alert("El nombre y la fecha de término son obligatorios.");
-    sendData('/add-project', data);
+    sendToGitOps('add_project', data);
 }
 
 function submitPhase() {
@@ -43,7 +65,7 @@ function submitPhase() {
         phase_name: document.getElementById('phase-name').value
     };
     if (!data.phase_name) return alert("El nombre de la fase es obligatorio.");
-    sendData('/add-phase', data);
+    sendToGitOps('add_phase', data);
 }
 
 function submitTask() {
@@ -55,11 +77,11 @@ function submitTask() {
         status: document.getElementById('task-status').value
     };
     if (!data.task_name) return alert("La descripción de la tarea es obligatoria.");
-    sendData('/add-task', data);
+    sendToGitOps('add_task', data);
 }
 
 /**
- * Lógica de Renderizado y Cálculos (Ejecución al cargar el DOM)
+ * Lógica de Renderizado y Cálculos (Días, UF y Progreso)
  */
 document.addEventListener("DOMContentLoaded", function() {
     const projects = document.querySelectorAll('.project-block');
@@ -81,8 +103,10 @@ document.addEventListener("DOMContentLoaded", function() {
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
             const daysDiv = project.querySelector('.js-days-diff');
-            daysDiv.innerText = `${diffDays} días ${diffDays >= 0 ? 'libres' : 'adeudados'}`;
-            daysDiv.style.color = diffDays >= 0 ? "#00ff88" : "#ff4d4d";
+            if (daysDiv) {
+                daysDiv.innerText = `${diffDays} días ${diffDays >= 0 ? 'libres' : 'adeudados'}`;
+                daysDiv.style.color = diffDays >= 0 ? "#00ff88" : "#ff4d4d";
+            }
         }
 
         // 2. Cálculo de Fases y HH
@@ -107,12 +131,12 @@ document.addEventListener("DOMContentLoaded", function() {
             totalPhasesProgress += phaseProgress;
         });
 
-        // 3. Matemática Financiera (Basada en image_6babe3.png)
+        // 3. Matemática Financiera
         const totalUF = (totalHH * tasaCobro).toFixed(2);
         const totalCLP = Math.round(totalUF * valorReferenciaUF);
         const globalProgress = phases.length > 0 ? Math.round(totalPhasesProgress / phases.length) : 0;
 
-        // 4. Inyección de Resultados
+        // 4. Inyección de Resultados en el DOM
         if (project.querySelector('.js-total-uf')) project.querySelector('.js-total-uf').innerText = `${totalUF} UF`;
         if (project.querySelector('.js-total-clp')) project.querySelector('.js-total-clp').innerText = `$${totalCLP.toLocaleString('es-CL')} CLP`;
         if (project.querySelector('.js-total-hh')) project.querySelector('.js-total-hh').innerText = `${totalHH} H/H registradas`;
