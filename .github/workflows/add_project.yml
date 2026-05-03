@@ -34,8 +34,9 @@ jobs:
           ls -R
 
       - name: Run Engine
-        # Usamos el path relativo directo desde la raíz del checkout
-        run: python3 ./core/manage_projects.py "${{ github.event.inputs.name }}" "${{ github.event.inputs.uf }}" "${{ github.event.inputs.mora }}"
+        run: |
+          cd $GITHUB_WORKSPACE
+          python3 core/manage_projects.py "${{ github.event.inputs.name }}" "${{ github.event.inputs.uf }}" "${{ github.event.inputs.mora }}"
 
       - name: Sync Changes
         run: |
