@@ -1,8 +1,3 @@
-Excelente idea. Vamos a poblar el JSON con datos variados (algunos al día, otros atrasados y con distintos niveles de avance) para que puedas estresar la grilla y ver cómo reaccionan los colores y los porcentajes.
-
-Aquí tienes el _data/project-schedule.json con 3 escenarios de prueba:
-
-JSON
 {
   "projects": [
     {
