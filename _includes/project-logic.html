@@ -4,7 +4,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     projects.forEach(project => {
         const endDateStr = project.getAttribute('data-end');
-        const ufRate = parseFloat(project.getAttribute('data-rate'));
+        // Valor de 1 UF en pesos (ej. 38000)
+        const valorReferenciaUF = parseFloat(project.getAttribute('data-valor-uf')) || 38000;
+        // Tasa de cobro (0.25 UF por hora)
+        const tasaCobro = parseFloat(project.getAttribute('data-tasa')) || 0.25;
         
         let totalHH = 0;
         let totalPhasesProgress = 0;
@@ -30,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             tasks.forEach(task => {
                 const hh = parseFloat(task.getAttribute('data-hh')) || 0;
-                const status = task.getAttribute('data-status').toLowerCase();
+                const status = (task.getAttribute('data-status') || "").toLowerCase();
                 
                 phaseHH += hh;
                 if (status === 'completada') phaseDone++;
@@ -43,12 +46,17 @@ document.addEventListener("DOMContentLoaded", function() {
             totalPhasesProgress += phaseProgress;
         });
 
-        // 3. Totales Globales
+        // 3. MATEMÁTICA CORREGIDA
+        // Total UF = Horas totales * 0.25
+        const totalUF = (totalHH * tasaCobro).toFixed(2);
+        // Total Pesos = Total UF * 38000
+        const totalCLP = Math.round(totalUF * valorReferenciaUF);
+
         const globalProgress = phases.length > 0 ? Math.round(totalPhasesProgress / phases.length) : 0;
-        const totalUF = (totalHH * ufRate).toFixed(2);
 
         // 4. Inyectar en el HTML
         project.querySelector('.js-total-uf').innerText = `${totalUF} UF`;
+        project.querySelector('.js-total-clp').innerText = `$${totalCLP.toLocaleString('es-CL')} CLP`;
         project.querySelector('.js-total-hh').innerText = `${totalHH} H/H registradas`;
         project.querySelector('.js-global-progress').innerText = `${globalProgress}%`;
         project.querySelector('.js-progress-bar').style.width = `${globalProgress}%`;
