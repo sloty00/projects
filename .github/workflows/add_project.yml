@@ -35,8 +35,16 @@ jobs:
 
       - name: Run Engine
         run: |
-          cd $GITHUB_WORKSPACE
-          python3 core/manage_projects.py "${{ github.event.inputs.name }}" "${{ github.event.inputs.uf }}" "${{ github.event.inputs.mora }}"
+          # Encontrar la ruta real del script sin importar la estructura de carpetas
+          SCRIPT_PATH=$(find . -name "manage_projects.py" | head -n 1)
+          
+          if [ -z "$SCRIPT_PATH" ]; then
+            echo "ERROR: No se encontró manage_projects.py en ninguna carpeta."
+            exit 1
+          fi
+          
+          echo "Ejecutando desde: $SCRIPT_PATH"
+          python3 "$SCRIPT_PATH" "${{ github.event.inputs.name }}" "${{ github.event.inputs.uf }}" "${{ github.event.inputs.mora }}"
 
       - name: Sync Changes
         run: |
