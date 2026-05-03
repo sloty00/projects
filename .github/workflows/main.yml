@@ -1,0 +1,25 @@
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Ejecutar Sincronización de Proyectos
+        run: |
+          python3 core/manage_projects.py --sync
+
+      - name: Commit y Push de los cambios calculados
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add _data/project-schedule.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Cálculos automáticos de métricas" && git push)
+
+      - name: Desplegar a GitHub Pages
+        # Aquí va tu paso actual de Jekyll/Deploy
