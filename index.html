@@ -5,56 +5,65 @@ layout: default
 <div class="glass-container">
     <header class="dashboard-header">
         <h1>Project Dashboard</h1>
-        <p>Sistema de control GitOps • Última actualización: {{ site.data.project-schedule.metadata.last_updated }}</p>
+        <p>Control de Gestión GitOps • Actualizado: {{ site.data.project-schedule.metadata.last_updated }}</p>
     </header>
 
     {% for project in site.data.project-schedule.projects %}
     <section class="project-block" style="margin-bottom: 4rem;">
         
-        <!-- Nivel 1: Métricas de Proyecto -->
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <span class="metric-label">Días de Plazo</span>
-                <div class="metric-value" style="color: {% if project.metrics.days_diff >= 0 %}#00ff88{% else %}#ff4d4d{% endif %};">
-                    {{ project.metrics.days_diff }} d {% if project.metrics.days_diff >= 0 %}a favor{% else %}atrasado{% endif %}
+        <!-- Nivel 1: Datos de Proyecto (Grilla) -->
+        <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                <h2 style="color: #00d4ff; margin: 0;">{{ project.name }}</h2>
+                <div style="text-align: right;">
+                    <span class="metric-label">TÉRMINO PROYECTADO</span>
+                    <div style="font-weight: bold;">{{ project.dates.contract_end }}</div>
                 </div>
             </div>
-            <div class="metric-card">
-                <span class="metric-label">Facturación (H/H)</span>
-                <div class="metric-value" style="color: #00d4ff;">{{ project.metrics.total_uf }} UF</div>
-                <small style="font-size: 0.7rem; opacity: 0.5;">{{ project.metrics.total_hh }} hrs @ 0.25 UF</small>
-            </div>
-            <div class="metric-card">
-                <span class="metric-label">Avance Global</span>
-                <div class="metric-value">{{ project.metrics.total_progress | round }}%</div>
-                <div class="progress-bar-bg">
-                    <div class="progress-fill" style="width: {{ project.metrics.total_progress }}%;"></div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem;">
+                <div>
+                    <span class="metric-label">PLAZOS (INICIO/FIN)</span>
+                    <div style="font-size: 0.85rem; margin-top: 5px; opacity: 0.8;">
+                        {{ project.dates.start }} <br> {{ project.dates.contract_end }}
+                    </div>
+                </div>
+                <div>
+                    <span class="metric-label">ESTADO DE DÍAS</span>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: {% if project.metrics.days_diff >= 0 %}#00ff88{% else %}#ff4d4d{% endif %};">
+                        {{ project.metrics.days_diff }} días {% if project.metrics.days_diff >= 0 %}libres{% else %}adeudados{% endif %}
+                    </div>
+                </div>
+                <div>
+                    <span class="metric-label">FACTURACIÓN (0.25 UF)</span>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: #00d4ff;">{{ project.metrics.total_uf }} UF</div>
+                    <small style="opacity: 0.5;">{{ project.metrics.total_hh }} H/H registradas</small>
+                </div>
+                <div>
+                    <span class="metric-label">AVANCE GLOBAL</span>
+                    <div style="font-size: 1.2rem; font-weight: bold;">{{ project.metrics.total_progress }}%</div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-fill" style="width: {{ project.metrics.total_progress }}%;"></div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">{{ project.name }}</h2>
-
-        <!-- Nivel 2: Fases -->
+        <!-- Nivel 2 y 3: Fases y Tareas -->
         {% for phase in project.phases %}
         <div class="phase-container">
             <div class="phase-header">
-                <h4 style="color: #a0a0a0; text-transform: uppercase; font-size: 0.8rem;">Fase: {{ phase.phase_name }}</h4>
-                <span style="font-size: 0.8rem; color: #00ff88;">{{ phase.progress | round }}%</span>
+                <h4 style="color: #888; font-size: 0.75rem;">FASE: {{ phase.phase_name }}</h4>
+                <span style="color: #00ff88; font-size: 0.8rem;">{{ phase.progress }}%</span>
             </div>
-
-            <!-- Nivel 3: Tareas -->
             <ul class="task-list">
                 {% for task in phase.tasks %}
                 <li class="task-item">
                     <span style="{% if task.status == 'completada' %}opacity: 0.4; text-decoration: line-through;{% endif %}">
                         • {{ task.task_name }}
                     </span>
-                    <span style="font-size: 0.75rem; color: #888;">
-                        {{ task.hh_spent }} hrs | 
-                        <strong style="color: {% if task.status == 'completada' %}#00ff88{% else %}#eab308{% endif %};">
-                            {{ task.status }}
-                        </strong>
+                    <span style="font-size: 0.7rem; color: #666;">
+                        {{ task.hh_spent }} hrs | <b style="color: {% if task.status == 'completada' %}#00ff88{% else %}#eab308{% endif %};">{{ task.status | uppercase }}</b>
                     </span>
                 </li>
                 {% endfor %}
@@ -62,10 +71,5 @@ layout: default
         </div>
         {% endfor %}
     </section>
-    {% else %}
-    <div style="text-align: center; padding: 5rem; opacity: 0.4;">
-        <p>No hay proyectos activos.</p>
-        <code>python3 manage_projects.py "Nuevo Proyecto" "2026-05-01" "2026-06-01"</code>
-    </div>
     {% endfor %}
 </div>
