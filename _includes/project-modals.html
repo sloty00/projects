@@ -1,0 +1,137 @@
+<!-- Estilos para los Modales -->
+<style>
+    .modal {
+        display: none; 
+        position: fixed; 
+        z-index: 1000; 
+        left: 0; top: 0; 
+        width: 100%; height: 100%; 
+        background-color: rgba(0,0,0,0.8);
+        backdrop-filter: blur(5px);
+    }
+    .modal-content {
+        background: #1a1a1a;
+        margin: 10% auto;
+        padding: 2rem;
+        border: 1px solid #00d4ff;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 0 20px rgba(0,212,255,0.2);
+    }
+    .modal-content h3 { color: #00d4ff; margin-top: 0; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.8rem; color: #888; margin-bottom: 5px; }
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 10px;
+        background: #2a2a2a;
+        border: 1px solid #444;
+        border-radius: 4px;
+        color: white;
+    }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 2rem; }
+    .btn-save { background: #00ff88; color: black; border: none; padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+    .btn-cancel { background: transparent; color: #ff4d4d; border: 1px solid #ff4d4d; padding: 8px 20px; border-radius: 4px; cursor: pointer; }
+</style>
+
+<!-- MODAL 1: NUEVO PROYECTO -->
+<div id="projectModal" class="modal">
+    <div class="modal-content">
+        <h3>🚀 Crear Nuevo Proyecto</h3>
+        <div class="form-group">
+            <label>Nombre del Proyecto</label>
+            <input type="text" id="p-name" placeholder="Ej: Optimización DB">
+        </div>
+        <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+                <label>Fecha Inicio</label>
+                <input type="date" id="p-start">
+            </div>
+            <div>
+                <label>Fecha Fin</label>
+                <input type="date" id="p-end">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal('projectModal')">Cancelar</button>
+            <button class="btn-save" onclick="submitProject()">Crear Proyecto</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 2: AGREGAR FASE -->
+<div id="phaseModal" class="modal">
+    <div class="modal-content">
+        <h3>🏗️ Nueva Fase</h3>
+        <p id="target-project-label" style="font-size: 0.8rem; color: #00d4ff;"></p>
+        <input type="hidden" id="phase-target-project">
+        <div class="form-group">
+            <label>Nombre de la Fase</label>
+            <input type="text" id="phase-name" placeholder="Ej: Testing QA">
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal('phaseModal')">Cancelar</button>
+            <button class="btn-save" onclick="submitPhase()">Añadir Fase</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 3: AGREGAR TAREA -->
+<div id="taskModal" class="modal">
+    <div class="modal-content">
+        <h3>📝 Nueva Tarea</h3>
+        <p id="target-task-label" style="font-size: 0.7rem; color: #888;"></p>
+        <input type="hidden" id="task-target-project">
+        <input type="hidden" id="task-target-phase">
+        
+        <div class="form-group">
+            <label>Descripción de Tarea</label>
+            <input type="text" id="task-name" placeholder="Ej: Revisión de logs">
+        </div>
+        <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+                <label>Horas (HH)</label>
+                <input type="number" id="task-hh" value="0" step="0.5">
+            </div>
+            <div>
+                <label>Estado Inicial</label>
+                <select id="task-status">
+                    <option value="en proceso">EN PROCESO</option>
+                    <option value="completada">COMPLETADA</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal('taskModal')">Cancelar</button>
+            <button class="btn-save" onclick="submitTask()">Añadir Tarea</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Funciones básicas de UI
+    function openModal(id) { document.getElementById(id).style.display = 'block'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // Helpers para inyectar contexto en los modales
+    function openPhaseModal(projectName) {
+        document.getElementById('phase-target-project').value = projectName;
+        document.getElementById('target-project-label').innerText = `Proyecto: ${projectName}`;
+        openModal('phaseModal');
+    }
+
+    function openTaskModal(projectName, phaseName) {
+        document.getElementById('task-target-project').value = projectName;
+        document.getElementById('task-target-phase').value = phaseName;
+        document.getElementById('target-task-label').innerText = `${projectName} > ${phaseName}`;
+        openModal('taskModal');
+    }
+
+    // Cerrar si hacen clic fuera del cuadro
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+            event.target.style.display = "none";
+        }
+    }
+</script>
