@@ -18,7 +18,8 @@ def update_projects():
 
     # 2. Configuración de rutas
     file_path = "_data/project-schedule.json"
-    action = payload.get('action') # 'add_project', 'add_phase', 'add_task', 'sync'
+    # Ajuste para detectar la acción correctamente desde el evento de GitHub
+    action = payload.get('action') or payload.get('event_type')
     data = payload.get('data', {})
     
     if not os.path.exists(file_path):
@@ -48,6 +49,10 @@ def update_projects():
             total_hh += sum(float(t.get('hh_spent', 0)) for t in tasks)
 
         num_phases = len(phases)
+        # Aseguramos que la estructura de métricas exista
+        if 'metrics' not in project:
+            project['metrics'] = {}
+            
         project['metrics']['total_progress'] = round(sum_progress / num_phases, 1) if num_phases > 0 else 0
         project['metrics']['total_hh'] = total_hh
         project['metrics']['total_uf'] = round(total_hh * 0.25, 2)
@@ -57,8 +62,19 @@ def update_projects():
     if action == 'add_project':
         new_p = {
             "name": data.get('name'),
-            "dates": {"contract_start": data.get('start'), "contract_end": data.get('end')},
-            "metrics": {"uf_base": 38000, "status_label": "Activo"},
+            "status": "Activo",
+            "dates": {
+                "contract_start": data.get('start'), 
+                "contract_end": data.get('end')
+            },
+            "metrics": {
+                "uf_valor_referencia": 38000.0, # Corregido para tu JSON
+                "tasa_por_hora": 0.25,
+                "status_label": "Activo",
+                "total_progress": 0.0,
+                "total_hh": 0.0,
+                "total_uf": 0.0
+            },
             "phases": []
         }
         content['projects'].append(new_p)
@@ -66,7 +82,7 @@ def update_projects():
     elif action == 'add_phase':
         for p in content['projects']:
             if p['name'] == data.get('project_name'):
-                p['phases'].append({"phase_name": data.get('phase_name'), "tasks": []})
+                p['phases'].append({"phase_name": data.get('phase_name'), "tasks": [], "progress": 0.0})
 
     elif action == 'add_task':
         for p in content['projects']:
@@ -79,9 +95,12 @@ def update_projects():
                             "status": data.get('status', 'en proceso')
                         })
 
-    # 6. Sincronización final de todas las métricas
+    # 6. Sincronización final y actualización de Metadata
     for i in range(len(content['projects'])):
         content['projects'][i] = recalculate(content['projects'][i])
+    
+    # Actualizar la fecha de última modificación
+    content['metadata']['last_updated'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # 7. ESCRITURA
     with open(file_path, 'w', encoding='utf-8') as f:
