@@ -1,27 +1,39 @@
 <script>
 /**
- * CONFIGURACIÓN GITOPS (Basado en tu flujo previo)
+ * 1. CONFIGURACIÓN DE SEGURIDAD Y GITOPS
  */
-const GITHUB_REPO = "tu-usuario/tu-repositorio"; // Cambia esto
-const GITHUB_TOKEN = "TU_TOKEN_PERSONAL";        // Token con permisos 'workflow'
-const WORKFLOW_ID = "sync-projects.yml";         // Nombre de tu archivo YAML
+// Intentamos recuperar el token del almacenamiento local
+let GITHUB_TOKEN = localStorage.getItem('gitops_token');
+const GITHUB_REPO = "tu-usuario/tu-repositorio"; // ACTUALIZA ESTO
+const WORKFLOW_ID = "sync-projects.yml";         // Asegúrate que coincida con tu .yml
+
+// Si no existe, lo solicitamos una única vez
+if (!GITHUB_TOKEN) {
+    GITHUB_TOKEN = prompt("🔑 Configuración GitOps:\nIngresa tu Personal Access Token o escribe 'DEMO' para probar la interfaz:");
+    if (GITHUB_TOKEN) {
+        localStorage.setItem('gitops_token', GITHUB_TOKEN);
+    }
+}
 
 /**
- * Función para disparar la acción en GitHub via Payload
+ * 2. MOTOR DE ENVÍO A GITHUB (GITOPS)
  */
 async function sendToGitOps(action, data) {
+    // Manejo del Modo Demo para presentaciones o pruebas sin Token
+    if (GITHUB_TOKEN && GITHUB_TOKEN.toUpperCase() === 'DEMO') {
+        console.log("🛠️ MODO DEMO - Acción:", action, "Datos:", data);
+        alert("✨ [MODO DEMO]\nInterfaz validada correctamente.\nEn una ejecución real, esto dispararía el script de Python en GitHub Actions.");
+        closeAllModals();
+        return;
+    }
+
+    if (!GITHUB_TOKEN) {
+        alert("❌ Se requiere un Token para realizar cambios reales. Recarga la página.");
+        return;
+    }
+
     const url = `https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`;
     
-    const payload = {
-        ref: 'main', 
-        inputs: {
-            payload: JSON.stringify({
-                action: action,
-                data: data
-            })
-        }
-    };
-
     try {
         const response = await fetch(url, {
             method: 'POST',
@@ -30,12 +42,17 @@ async function sendToGitOps(action, data) {
                 'Accept': 'application/vnd.github.v3+json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({
+                ref: 'main',
+                inputs: {
+                    payload: JSON.stringify({ action: action, data: data })
+                }
+            })
         });
 
         if (response.ok) {
             alert("🚀 Acción enviada a GitHub. El Dashboard se actualizará en breve.");
-            // Opcional: podrías cerrar el modal aquí
+            closeAllModals();
         } else {
             const errorData = await response.json();
             alert("❌ Error de GitHub: " + (errorData.message || "No autorizado"));
@@ -47,7 +64,7 @@ async function sendToGitOps(action, data) {
 }
 
 /**
- * Handlers para los formularios de los modales
+ * 3. HANDLERS DE FORMULARIOS (MODALES)
  */
 function submitProject() {
     const data = {
@@ -81,7 +98,7 @@ function submitTask() {
 }
 
 /**
- * Lógica de Renderizado y Cálculos (Días, UF y Progreso)
+ * 4. LÓGICA DE RENDERIZADO Y CÁLCULOS (DOM)
  */
 document.addEventListener("DOMContentLoaded", function() {
     const projects = document.querySelectorAll('.project-block');
@@ -95,7 +112,7 @@ document.addEventListener("DOMContentLoaded", function() {
         let totalPhasesProgress = 0;
         let phases = project.querySelectorAll('.phase-container');
 
-        // 1. Cálculo de Tiempo
+        // Cálculo de Tiempo restante
         if (endDateStr) {
             const end = new Date(endDateStr);
             const today = new Date();
@@ -109,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
 
-        // 2. Cálculo de Fases y HH
+        // Cálculo de Fases, HH y Progreso
         phases.forEach(phase => {
             const tasks = phase.querySelectorAll('.task-item');
             let phaseHH = 0;
@@ -131,12 +148,12 @@ document.addEventListener("DOMContentLoaded", function() {
             totalPhasesProgress += phaseProgress;
         });
 
-        // 3. Matemática Financiera
+        // Matemática Financiera
         const totalUF = (totalHH * tasaCobro).toFixed(2);
         const totalCLP = Math.round(totalUF * valorReferenciaUF);
         const globalProgress = phases.length > 0 ? Math.round(totalPhasesProgress / phases.length) : 0;
 
-        // 4. Inyección de Resultados en el DOM
+        // Inyección de Resultados en el Dashboard
         if (project.querySelector('.js-total-uf')) project.querySelector('.js-total-uf').innerText = `${totalUF} UF`;
         if (project.querySelector('.js-total-clp')) project.querySelector('.js-total-clp').innerText = `$${totalCLP.toLocaleString('es-CL')} CLP`;
         if (project.querySelector('.js-total-hh')) project.querySelector('.js-total-hh').innerText = `${totalHH} H/H registradas`;
@@ -146,4 +163,17 @@ document.addEventListener("DOMContentLoaded", function() {
         if (progressBar) progressBar.style.width = `${globalProgress}%`;
     });
 });
+
+/**
+ * 5. UTILIDADES
+ */
+function closeAllModals() {
+    document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+}
+
+// Para resetear el token desde consola si te equivocas: resetToken()
+function resetToken() {
+    localStorage.removeItem('gitops_token');
+    location.reload();
+}
 </script>
