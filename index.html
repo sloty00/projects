@@ -9,9 +9,12 @@ layout: default
     </header>
 
     {% for project in site.data.project-schedule.projects %}
-    <section class="project-block" style="margin-bottom: 4rem;">
+    <!-- Añadimos data-end y data-rate para que JS los lea -->
+    <section class="project-block" 
+             style="margin-bottom: 4rem;" 
+             data-end="{{ project.dates.contract_end }}" 
+             data-rate="{{ project.metrics.uf_base | default: 0.25 }}">
         
-        <!-- Nivel 1: Datos de Proyecto (Grilla) -->
         <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
                 <h2 style="color: #00d4ff; margin: 0;">{{ project.name }}</h2>
@@ -25,45 +28,49 @@ layout: default
                 <div>
                     <span class="metric-label">PLAZOS (INICIO/FIN)</span>
                     <div style="font-size: 0.85rem; margin-top: 5px; opacity: 0.8;">
-                        {{ project.dates.start }} <br> {{ project.dates.contract_end }}
+                        {{ project.dates.contract_start }} <br> {{ project.dates.contract_end }}
                     </div>
                 </div>
                 <div>
                     <span class="metric-label">ESTADO DE DÍAS</span>
-                    <div style="font-size: 1.2rem; font-weight: bold; color: {% if project.metrics.days_diff >= 0 %}#00ff88{% else %}#ff4d4d{% endif %};">
-                        {{ project.metrics.days_diff }} días {% if project.metrics.days_diff >= 0 %}libres{% else %}adeudados{% endif %}
+                    <!-- Clase JS: js-days-diff -->
+                    <div class="js-days-diff" style="font-size: 1.2rem; font-weight: bold;">
+                        Calculando...
                     </div>
                 </div>
                 <div>
-                    <span class="metric-label">FACTURACIÓN (0.25 UF)</span>
-                    <div style="font-size: 1.2rem; font-weight: bold; color: #00d4ff;">{{ project.metrics.total_uf }} UF</div>
-                    <small style="opacity: 0.5;">{{ project.metrics.total_hh }} H/H registradas</small>
+                    <span class="metric-label">FACTURACIÓN</span>
+                    <!-- Clases JS: js-total-uf y js-total-hh -->
+                    <div class="js-total-uf" style="font-size: 1.2rem; font-weight: bold; color: #00d4ff;">0 UF</div>
+                    <small class="js-total-hh" style="opacity: 0.5;">0 H/H registradas</small>
                 </div>
                 <div>
                     <span class="metric-label">AVANCE GLOBAL</span>
-                    <div style="font-size: 1.2rem; font-weight: bold;">{{ project.metrics.total_progress }}%</div>
+                    <!-- Clase JS: js-global-progress -->
+                    <div class="js-global-progress" style="font-size: 1.2rem; font-weight: bold;">0%</div>
                     <div class="progress-bar-bg">
-                        <div class="progress-fill" style="width: {{ project.metrics.total_progress }}%;"></div>
+                        <div class="progress-fill js-progress-bar" style="width: 0%;"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Nivel 2 y 3: Fases y Tareas -->
         {% for phase in project.phases %}
         <div class="phase-container">
             <div class="phase-header">
                 <h4 style="color: #888; font-size: 0.75rem;">FASE: {{ phase.phase_name }}</h4>
-                <span style="color: #00ff88; font-size: 0.8rem;">{{ phase.progress }}%</span>
+                <!-- Clase JS: js-phase-progress -->
+                <span class="js-phase-progress" style="color: #00ff88; font-size: 0.8rem;">0%</span>
             </div>
             <ul class="task-list">
                 {% for task in phase.tasks %}
-                <li class="task-item">
+                <!-- Añadimos data-hh y data-status -->
+                <li class="task-item" data-hh="{{ task.hh_spent }}" data-status="{{ task.status }}">
                     <span style="{% if task.status == 'completada' %}opacity: 0.4; text-decoration: line-through;{% endif %}">
                         • {{ task.task_name }}
                     </span>
                     <span style="font-size: 0.7rem; color: #666;">
-                        {{ task.hh_spent }} hrs | <b style="color: {% if task.status == 'completada' %}#00ff88{% else %}#eab308{% endif %};">{{ task.status | uppercase }}</b>
+                        {{ task.hh_spent }} hrs | <b style="color: {% if task.status == 'completada' %}#00ff88{% else %}#eab308{% endif %};">{{ task.status | upcase }}</b>
                     </span>
                 </li>
                 {% endfor %}
