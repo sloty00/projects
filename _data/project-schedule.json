@@ -104,7 +104,7 @@
       "status": "Activo",
       "dates": {
         "contract_start": "2026-05-03",
-        "contract_end": "2026-05-03"
+        "contract_end": "2026-06-15"
       },
       "metrics": {
         "uf_base": 38000.0,
@@ -113,12 +113,45 @@
         "total_hh": 0,
         "total_uf": 0,
         "days_diff": 0,
-        "status_label": "Iniciado"
+        "status_label": "En Desarrollo"
       },
-      "phases": []
+      "phases": [
+        {
+          "phase_name": "Infraestructura GitOps",
+          "progress": 100,
+          "tasks": [
+            {
+              "task_name": "Configuración GitHub Actions",
+              "hh_spent": 15,
+              "status": "completada"
+            },
+            {
+              "task_name": "Motor de Cálculo Python",
+              "hh_spent": 10,
+              "status": "completada"
+            }
+          ]
+        },
+        {
+          "phase_name": "Dashboard Frontend",
+          "progress": 40,
+          "tasks": [
+            {
+              "task_name": "Integración Liquid Templates",
+              "hh_spent": 8,
+              "status": "completada"
+            },
+            {
+              "task_name": "Visualización de Métricas",
+              "hh_spent": 5,
+              "status": "en proceso"
+            }
+          ]
+        }
+      ]
     }
   ],
   "metadata": {
-    "last_updated": "2026-05-03 01:10:38"
+    "last_updated": "2026-05-03 10:00:00"
   }
 }
