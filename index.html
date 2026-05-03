@@ -9,11 +9,12 @@ layout: default
     </header>
 
     {% for project in site.data.project-schedule.projects %}
-    <!-- Añadimos data-end y data-rate para que JS los lea -->
+    <!-- Pasamos el valor de la UF (38000) y la tasa (0.25) -->
     <section class="project-block" 
              style="margin-bottom: 4rem;" 
              data-end="{{ project.dates.contract_end }}" 
-             data-rate="{{ project.metrics.uf_base | default: 0.25 }}">
+             data-valor-uf="{{ project.metrics.uf_base }}"
+             data-tasa="0.25">
         
         <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
@@ -33,20 +34,19 @@ layout: default
                 </div>
                 <div>
                     <span class="metric-label">ESTADO DE DÍAS</span>
-                    <!-- Clase JS: js-days-diff -->
                     <div class="js-days-diff" style="font-size: 1.2rem; font-weight: bold;">
                         Calculando...
                     </div>
                 </div>
                 <div>
-                    <span class="metric-label">FACTURACIÓN</span>
-                    <!-- Clases JS: js-total-uf y js-total-hh -->
+                    <span class="metric-label">FACTURACIÓN (0.25 UF p/h)</span>
                     <div class="js-total-uf" style="font-size: 1.2rem; font-weight: bold; color: #00d4ff;">0 UF</div>
+                    <!-- Añadido contenedor para Pesos Chilenos -->
+                    <div class="js-total-clp" style="font-size: 0.9rem; color: #00ff88; font-weight: bold;">$0 CLP</div>
                     <small class="js-total-hh" style="opacity: 0.5;">0 H/H registradas</small>
                 </div>
                 <div>
                     <span class="metric-label">AVANCE GLOBAL</span>
-                    <!-- Clase JS: js-global-progress -->
                     <div class="js-global-progress" style="font-size: 1.2rem; font-weight: bold;">0%</div>
                     <div class="progress-bar-bg">
                         <div class="progress-fill js-progress-bar" style="width: 0%;"></div>
@@ -59,12 +59,10 @@ layout: default
         <div class="phase-container">
             <div class="phase-header">
                 <h4 style="color: #888; font-size: 0.75rem;">FASE: {{ phase.phase_name }}</h4>
-                <!-- Clase JS: js-phase-progress -->
                 <span class="js-phase-progress" style="color: #00ff88; font-size: 0.8rem;">0%</span>
             </div>
             <ul class="task-list">
                 {% for task in phase.tasks %}
-                <!-- Añadimos data-hh y data-status -->
                 <li class="task-item" data-hh="{{ task.hh_spent }}" data-status="{{ task.status }}">
                     <span style="{% if task.status == 'completada' %}opacity: 0.4; text-decoration: line-through;{% endif %}">
                         • {{ task.task_name }}
