@@ -1,39 +1,4 @@
-<!-- Estilos para los Modales -->
-<style>
-    .modal {
-        display: none; 
-        position: fixed; 
-        z-index: 1000; 
-        left: 0; top: 0; 
-        width: 100%; height: 100%; 
-        background-color: rgba(0,0,0,0.8);
-        backdrop-filter: blur(5px);
-    }
-    .modal-content {
-        background: #1a1a1a;
-        margin: 10% auto;
-        padding: 2rem;
-        border: 1px solid #00d4ff;
-        border-radius: 16px;
-        width: 90%;
-        max-width: 500px;
-        box-shadow: 0 0 20px rgba(0,212,255,0.2);
-    }
-    .modal-content h3 { color: #00d4ff; margin-top: 0; }
-    .form-group { margin-bottom: 1rem; }
-    .form-group label { display: block; font-size: 0.8rem; color: #888; margin-bottom: 5px; }
-    .form-group input, .form-group select {
-        width: 100%;
-        padding: 10px;
-        background: #2a2a2a;
-        border: 1px solid #444;
-        border-radius: 4px;
-        color: white;
-    }
-    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 2rem; }
-    .btn-save { background: #00ff88; color: black; border: none; padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-    .btn-cancel { background: transparent; color: #ff4d4d; border: 1px solid #ff4d4d; padding: 8px 20px; border-radius: 4px; cursor: pointer; }
-</style>
+<!-- [MANTENER TUS ESTILOS CSS IGUAL] -->
 
 <!-- MODAL 1: NUEVO PROYECTO -->
 <div id="projectModal" class="modal">
@@ -110,11 +75,16 @@
 </div>
 
 <script>
-    // Funciones básicas de UI
-    function openModal(id) { document.getElementById(id).style.display = 'block'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    // 1. Apertura y Cierre Simple
+    function openModal(id) { 
+        document.getElementById(id).style.display = 'block'; 
+    }
+    
+    function closeModal(id) { 
+        document.getElementById(id).style.display = 'none'; 
+    }
 
-    // Helpers para inyectar contexto en los modales
+    // 2. Inyección de Contexto (Para saber a qué proyecto/fase añadir)
     function openPhaseModal(projectName) {
         document.getElementById('phase-target-project').value = projectName;
         document.getElementById('target-project-label').innerText = `Proyecto: ${projectName}`;
@@ -128,7 +98,7 @@
         openModal('taskModal');
     }
 
-    // Cerrar si hacen clic fuera del cuadro
+    // 3. Cierre por clic exterior
     window.onclick = function(event) {
         if (event.target.className === 'modal') {
             event.target.style.display = "none";
