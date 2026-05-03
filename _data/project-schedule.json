@@ -1,26 +1,87 @@
+Excelente idea. Vamos a poblar el JSON con datos variados (algunos al día, otros atrasados y con distintos niveles de avance) para que puedas estresar la grilla y ver cómo reaccionan los colores y los porcentajes.
+
+Aquí tienes el _data/project-schedule.json con 3 escenarios de prueba:
+
+JSON
 {
   "projects": [
     {
-      "id": 1,
-      "name": "Infraestructura Cloud",
-      "budget": {
-        "hh_rate_uf": 0.25,
-        "hh_planned": 120,
-        "hh_used": 45
-      },
+      "name": "E-Commerce Refactor",
       "dates": {
-        "start": "2026-04-15",
-        "contract_end": "2026-06-01"
+        "start": "2026-01-10",
+        "contract_end": "2026-05-15"
+      },
+      "metrics": {
+        "days_diff": 0,
+        "total_progress": 0,
+        "total_hh": 0,
+        "total_uf": 0
       },
       "phases": [
         {
-          "phase_name": "Configuración Core",
+          "phase_name": "Frontend - React Hooks",
+          "progress": 0,
           "tasks": [
-            {"task_name": "Setup de VPC", "status": "completada", "hh_spent": 10},
-            {"task_name": "Seguridad de Red", "status": "en proceso", "hh_spent": 5}
+            { "task_name": "Migración Context API", "hh_spent": 20, "status": "completada" },
+            { "task_name": "Optimización Renderizado", "hh_spent": 12, "status": "completada" }
+          ]
+        },
+        {
+          "phase_name": "Backend - Node API",
+          "progress": 0,
+          "tasks": [
+            { "task_name": "Endpoints de Pago", "hh_spent": 8, "status": "en proceso" },
+            { "task_name": "Unit Testing", "hh_spent": 0, "status": "pendiente" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Mantenimiento Servidores (Mora)",
+      "dates": {
+        "start": "2026-03-01",
+        "contract_end": "2026-04-20"
+      },
+      "metrics": {
+        "days_diff": 0,
+        "total_progress": 0,
+        "total_hh": 0,
+        "total_uf": 0
+      },
+      "phases": [
+        {
+          "phase_name": "Actualización de Kernel",
+          "progress": 0,
+          "tasks": [
+            { "task_name": "Patching Seguridad", "hh_spent": 40, "status": "completada" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "App Móvil Delivery",
+      "dates": {
+        "start": "2026-05-01",
+        "contract_end": "2026-12-30"
+      },
+      "metrics": {
+        "days_diff": 0,
+        "total_progress": 0,
+        "total_hh": 0,
+        "total_uf": 0
+      },
+      "phases": [
+        {
+          "phase_name": "Diseño UX/UI",
+          "progress": 0,
+          "tasks": [
+            { "task_name": "Wireframes", "hh_spent": 0, "status": "en proceso" }
           ]
         }
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "last_updated": "2026-05-02 20:10:00"
+  }
 }
