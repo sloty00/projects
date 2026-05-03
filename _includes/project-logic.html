@@ -1,0 +1,57 @@
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const projects = document.querySelectorAll('.project-block');
+
+    projects.forEach(project => {
+        const endDateStr = project.getAttribute('data-end');
+        const ufRate = parseFloat(project.getAttribute('data-rate'));
+        
+        let totalHH = 0;
+        let totalPhasesProgress = 0;
+        let phases = project.querySelectorAll('.phase-container');
+
+        // 1. Calcular Días Restantes
+        if (endDateStr) {
+            const end = new Date(endDateStr);
+            const today = new Date();
+            const diffTime = end - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            const daysDiv = project.querySelector('.js-days-diff');
+            daysDiv.innerText = `${diffDays} días ${diffDays >= 0 ? 'libres' : 'adeudados'}`;
+            daysDiv.style.color = diffDays >= 0 ? "#00ff88" : "#ff4d4d";
+        }
+
+        // 2. Calcular Fases y Horas
+        phases.forEach(phase => {
+            const tasks = phase.querySelectorAll('.task-item');
+            let phaseHH = 0;
+            let phaseDone = 0;
+
+            tasks.forEach(task => {
+                const hh = parseFloat(task.getAttribute('data-hh')) || 0;
+                const status = task.getAttribute('data-status').toLowerCase();
+                
+                phaseHH += hh;
+                if (status === 'completada') phaseDone++;
+            });
+
+            const phaseProgress = tasks.length > 0 ? (phaseDone / tasks.length) * 100 : 0;
+            phase.querySelector('.js-phase-progress').innerText = `${Math.round(phaseProgress)}%`;
+            
+            totalHH += phaseHH;
+            totalPhasesProgress += phaseProgress;
+        });
+
+        // 3. Totales Globales
+        const globalProgress = phases.length > 0 ? Math.round(totalPhasesProgress / phases.length) : 0;
+        const totalUF = (totalHH * ufRate).toFixed(2);
+
+        // 4. Inyectar en el HTML
+        project.querySelector('.js-total-uf').innerText = `${totalUF} UF`;
+        project.querySelector('.js-total-hh').innerText = `${totalHH} H/H registradas`;
+        project.querySelector('.js-global-progress').innerText = `${globalProgress}%`;
+        project.querySelector('.js-progress-bar').style.width = `${globalProgress}%`;
+    });
+});
+</script>
