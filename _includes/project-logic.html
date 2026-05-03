@@ -2,14 +2,12 @@
 /**
  * 1. CONFIGURACIÓN DE SEGURIDAD Y GITOPS
  */
-// Intentamos recuperar el token del almacenamiento local
 let GITHUB_TOKEN = localStorage.getItem('gitops_token');
-const GITHUB_REPO = "sloty00/projects"; // ACTUALIZA ESTO
-const WORKFLOW_ID = "add_project.yml";         // Asegúrate que coincida con tu .yml
+const GITHUB_REPO = "sloty00/projects"; // Repositorio destino
 
-// Si no existe, lo solicitamos una única vez
+// Gestión de credenciales
 if (!GITHUB_TOKEN) {
-    GITHUB_TOKEN = prompt("🔑 Configuración GitOps:\nIngresa tu Personal Access Token o escribe 'DEMO' para probar la interfaz:");
+    GITHUB_TOKEN = prompt("🔑 Configuración GitOps:\nIngresa tu Personal Access Token:");
     if (GITHUB_TOKEN) {
         localStorage.setItem('gitops_token', GITHUB_TOKEN);
     }
@@ -17,22 +15,23 @@ if (!GITHUB_TOKEN) {
 
 /**
  * 2. MOTOR DE ENVÍO A GITHUB (GITOPS)
+ * Configurado para disparar repository_dispatch
  */
 async function sendToGitOps(action, data) {
-    // Manejo del Modo Demo para presentaciones o pruebas sin Token
     if (GITHUB_TOKEN && GITHUB_TOKEN.toUpperCase() === 'DEMO') {
         console.log("🛠️ MODO DEMO - Acción:", action, "Datos:", data);
-        alert("✨ [MODO DEMO]\nInterfaz validada correctamente.\nEn una ejecución real, esto dispararía el script de Python en GitHub Actions.");
+        alert("✨ [MODO DEMO]\nInterfaz validada correctamente.");
         closeAllModals();
         return;
     }
 
     if (!GITHUB_TOKEN) {
-        alert("❌ Se requiere un Token para realizar cambios reales. Recarga la página.");
+        alert("❌ Se requiere un Token para realizar cambios reales.");
         return;
     }
 
-    const url = `https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`;
+    // URL universal para eventos de repositorio
+    const url = `https://api.github.com/repos/${GITHUB_REPO}/dispatches`;
     
     try {
         const response = await fetch(url, {
@@ -43,15 +42,15 @@ async function sendToGitOps(action, data) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                ref: 'main',
-                inputs: {
-                    payload: JSON.stringify({ action: action, data: data })
+                event_type: action, // 'add_project', 'add_phase' o 'add_task'
+                client_payload: {
+                    data: data
                 }
             })
         });
 
         if (response.ok) {
-            alert("🚀 Acción enviada a GitHub. El Dashboard se actualizará en breve.");
+            alert("🚀 Acción enviada a GitHub. El Dashboard se actualizará tras la ejecución del script.");
             closeAllModals();
         } else {
             const errorData = await response.json();
@@ -64,7 +63,7 @@ async function sendToGitOps(action, data) {
 }
 
 /**
- * 3. HANDLERS DE FORMULARIOS (MODALES)
+ * 3. HANDLERS DE FORMULARIOS
  */
 function submitProject() {
     const data = {
@@ -98,7 +97,8 @@ function submitTask() {
 }
 
 /**
- * 4. LÓGICA DE RENDERIZADO Y CÁLCULOS (DOM)
+ * 4. LÓGICA DE RENDERIZADO Y CÁLCULOS
+ * Procesa los datos del JSON para mostrar indicadores financieros
  */
 document.addEventListener("DOMContentLoaded", function() {
     const projects = document.querySelectorAll('.project-block');
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", function() {
         let totalPhasesProgress = 0;
         let phases = project.querySelectorAll('.phase-container');
 
-        // Cálculo de Tiempo restante
+        // Cálculo de Tiempo
         if (endDateStr) {
             const end = new Date(endDateStr);
             const today = new Date();
@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
 
-        // Cálculo de Fases, HH y Progreso
+        // Progreso de Fases y Tareas
         phases.forEach(phase => {
             const tasks = phase.querySelectorAll('.task-item');
             let phaseHH = 0;
@@ -148,12 +148,12 @@ document.addEventListener("DOMContentLoaded", function() {
             totalPhasesProgress += phaseProgress;
         });
 
-        // Matemática Financiera
+        // Cálculos Financieros
         const totalUF = (totalHH * tasaCobro).toFixed(2);
         const totalCLP = Math.round(totalUF * valorReferenciaUF);
         const globalProgress = phases.length > 0 ? Math.round(totalPhasesProgress / phases.length) : 0;
 
-        // Inyección de Resultados en el Dashboard
+        // Inyección en DOM
         if (project.querySelector('.js-total-uf')) project.querySelector('.js-total-uf').innerText = `${totalUF} UF`;
         if (project.querySelector('.js-total-clp')) project.querySelector('.js-total-clp').innerText = `$${totalCLP.toLocaleString('es-CL')} CLP`;
         if (project.querySelector('.js-total-hh')) project.querySelector('.js-total-hh').innerText = `${totalHH} H/H registradas`;
@@ -171,7 +171,6 @@ function closeAllModals() {
     document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
 }
 
-// Para resetear el token desde consola si te equivocas: resetToken()
 function resetToken() {
     localStorage.removeItem('gitops_token');
     location.reload();
