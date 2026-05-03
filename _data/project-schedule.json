@@ -8,8 +8,8 @@
         "contract_end": "2026-06-15"
       },
       "metrics": {
-        "uf_base": 38000.0,
-        "mora": 0.5,
+        "uf_valor_referencia": 38000.0,
+        "tasa_por_hora": 0.25,
         "status_label": "En Desarrollo"
       },
       "phases": [
