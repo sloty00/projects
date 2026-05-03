@@ -1,19 +1,10 @@
 name: "System: Add Project Entry"
 
 on:
-  workflow_dispatch:
-    inputs:
-      name:
-        description: 'Nombre del recurso'
-        required: true
-      uf:
-        description: 'Valor UF'
-        required: true
-      mora:
-        description: 'Mora (%)'
-        required: true
+  # Cambiamos workflow_dispatch por repository_dispatch
+  repository_dispatch:
+    types: [add_project, add_phase, add_task]
 
-# Otorga permisos de escritura al token automático de GitHub
 permissions:
   contents: write
 
@@ -24,8 +15,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # Asegura que el checkout use el token con permisos
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Para GitOps, es mejor usar tu Secreto si vas a empujar cambios
+          token: ${{ secrets.GITOPS_TOKEN }}
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -33,15 +24,16 @@ jobs:
           python-version: '3.10'
 
       - name: Run Engine
-        # Ejecuta el script con el nombre exacto: manage-projects.py
+        # Importante: El payload que enviamos desde el JS llega en client_payload
         run: |
-          python3 core/manage-projects.py "${{ github.event.inputs.name }}" "${{ github.event.inputs.uf }}" "${{ github.event.inputs.mora }}"
+          python3 core/manage-projects.py \
+          '${{ github.event.client_payload.data.name }}' \
+          '${{ github.event.client_payload.data.uf }}' \
+          '${{ github.event.client_payload.data.mora }}'
 
       - name: Sync Changes
         run: |
           git config --global user.name "System-Bot"
           git config --global user.email "bot@system.local"
-          # Añade el JSON actualizado
           git add _data/project-schedule.json
-          # Solo hace commit y push si hay cambios detectados
-          git diff --quiet && git diff --staged --quiet || (git commit -m "data: manual update [${{ github.event.inputs.name }}]" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "data: remote update [${{ github.event.client_payload.data.name }}]" && git push)
