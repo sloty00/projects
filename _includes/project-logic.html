@@ -15,7 +15,7 @@ if (!GITHUB_TOKEN) {
 
 /**
  * 2. MOTOR DE ENVÍO A GITHUB (GITOPS)
- * Configurado para disparar repository_dispatch
+ * Configurado para disparar repository_dispatch hacia el buzón general
  */
 async function sendToGitOps(action, data) {
     if (GITHUB_TOKEN && GITHUB_TOKEN.toUpperCase() === 'DEMO') {
@@ -30,7 +30,7 @@ async function sendToGitOps(action, data) {
         return;
     }
 
-    // URL universal para eventos de repositorio
+    // URL universal para eventos de repositorio (CORREGIDA)
     const url = `https://api.github.com/repos/${GITHUB_REPO}/dispatches`;
     
     try {
@@ -42,7 +42,7 @@ async function sendToGitOps(action, data) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                event_type: action, // 'add_project', 'add_phase' o 'add_task'
+                event_type: action, // Debe coincidir con los types del YAML: add_project, add_phase, add_task
                 client_payload: {
                     data: data
                 }
@@ -66,10 +66,13 @@ async function sendToGitOps(action, data) {
  * 3. HANDLERS DE FORMULARIOS
  */
 function submitProject() {
+    // Capturamos los datos y añadimos uf/mora que tu YAML pide para el script Python
     const data = {
         name: document.getElementById('p-name').value,
         start: document.getElementById('p-start').value,
-        end: document.getElementById('p-end').value
+        end: document.getElementById('p-end').value,
+        uf: "38000", // Valor por defecto para el motor
+        mora: "0.25"  // Valor por defecto para el motor
     };
     if (!data.name || !data.end) return alert("El nombre y la fecha de término son obligatorios.");
     sendToGitOps('add_project', data);
