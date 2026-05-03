@@ -19,37 +19,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Asegura que tengamos todo el historial para el push
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      # Este paso es para debug: te dirá en el log exactamente dónde están tus archivos
-      - name: Verify Workspace
-        run: |
-          pwd
-          ls -R
-
       - name: Run Engine
+        # Corregido: manage-projects.py con guion medio
         run: |
-          # Encontrar la ruta real del script sin importar la estructura de carpetas
-          SCRIPT_PATH=$(find . -name "manage_projects.py" | head -n 1)
-          
-          if [ -z "$SCRIPT_PATH" ]; then
-            echo "ERROR: No se encontró manage_projects.py en ninguna carpeta."
-            exit 1
-          fi
-          
-          echo "Ejecutando desde: $SCRIPT_PATH"
-          python3 "$SCRIPT_PATH" "${{ github.event.inputs.name }}" "${{ github.event.inputs.uf }}" "${{ github.event.inputs.mora }}"
+          python3 core/manage-projects.py "${{ github.event.inputs.name }}" "${{ github.event.inputs.uf }}" "${{ github.event.inputs.mora }}"
 
       - name: Sync Changes
         run: |
           git config --global user.name "System-Bot"
           git config --global user.email "bot@system.local"
+          # Corregido: nombre exacto del JSON
           git add _data/project-schedule.json
-          # Solo hace commit si hay cambios reales para evitar que la Action falle
           git diff --quiet && git diff --staged --quiet || (git commit -m "data: manual update [${{ github.event.inputs.name }}]" && git push)
