@@ -10,16 +10,11 @@
       "metrics": {
         "uf_base": 38000.0,
         "mora": 0.5,
-        "total_progress": 0,
-        "total_hh": 0,
-        "total_uf": 0,
-        "days_diff": 0,
         "status_label": "En Desarrollo"
       },
       "phases": [
         {
           "phase_name": "Infraestructura GitOps",
-          "progress": 0,
           "tasks": [
             { "task_name": "Configuración GitHub Actions", "hh_spent": 15, "status": "completada" },
             { "task_name": "Motor de Cálculo Python", "hh_spent": 10, "status": "completada" }
@@ -27,7 +22,6 @@
         },
         {
           "phase_name": "Dashboard Frontend",
-          "progress": 0,
           "tasks": [
             { "task_name": "Integración Liquid Templates", "hh_spent": 8, "status": "completada" },
             { "task_name": "Visualización de Métricas", "hh_spent": 5, "status": "en proceso" }
