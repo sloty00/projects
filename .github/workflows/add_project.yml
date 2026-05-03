@@ -1,7 +1,7 @@
 name: "System: Add Project Entry"
 
 on:
-  # Cambiamos workflow_dispatch por repository_dispatch
+  # Escucha los eventos disparados desde el JavaScript del Dashboard
   repository_dispatch:
     types: [add_project, add_phase, add_task]
 
@@ -15,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # Para GitOps, es mejor usar tu Secreto si vas a empujar cambios
+          # Se usa el secreto GITOPS_TOKEN configurado en Settings para poder hacer push
           token: ${{ secrets.GITOPS_TOKEN }}
 
       - name: Setup Python
@@ -24,16 +24,20 @@ jobs:
           python-version: '3.10'
 
       - name: Run Engine
-        # Importante: El payload que enviamos desde el JS llega en client_payload
+        # Definimos el bloque ENV para que Python lea os.getenv('PAYLOAD')
+        env:
+          PAYLOAD: |
+            {
+              "action": "${{ github.event.event_type }}",
+              "data": ${{ toJson(github.event.client_payload.data) }}
+            }
         run: |
-          python3 core/manage-projects.py \
-          '${{ github.event.client_payload.data.name }}' \
-          '${{ github.event.client_payload.data.uf }}' \
-          '${{ github.event.client_payload.data.mora }}'
+          python3 core/manage-projects.py
 
       - name: Sync Changes
         run: |
           git config --global user.name "System-Bot"
           git config --global user.email "bot@system.local"
           git add _data/project-schedule.json
+          # Solo hace commit si hubo cambios reales en el JSON
           git diff --quiet && git diff --staged --quiet || (git commit -m "data: remote update [${{ github.event.client_payload.data.name }}]" && git push)
