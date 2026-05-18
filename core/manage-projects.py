@@ -107,6 +107,32 @@ def update_projects():
         if not project_found:
             print(f"⚠️ Advertencia: No se encontró ningún proyecto con el nombre '{data.get('project_name')}'")
 
+    # === BLOQUE AÑADIDO: AGREGAR TAREAS ===
+    elif action == 'add_task':
+        task_inserted = False
+        # Buscamos el proyecto destino
+        for p in content['projects']:
+            if p['name'] == data.get('project_name'):
+                # Buscamos la fase destino dentro de ese proyecto
+                for phase in p.get('phases', []):
+                    if phase['phase_name'] == data.get('phase_name'):
+                        # Construimos la nueva tarea mapeando las llaves exactas de tu JSON
+                        new_task = {
+                            "task_name": data.get('task_name', 'Nueva Tarea'),
+                            "hh_spent": float(data.get('hh', 0)),
+                            "status": data.get('status', 'en proceso').lower()
+                        }
+                        if 'tasks' not in phase:
+                            phase['tasks'] = []
+                        phase['tasks'].append(new_task)
+                        task_inserted = True
+                        print(f"✅ Tarea '{new_task['task_name']}' añadida con éxito a la fase '{phase['phase_name']}' de {p['name']}.")
+                        break
+                if task_inserted:
+                    break
+        if not task_inserted:
+            print(f"⚠️ Advertencia: No se pudo enlazar la tarea. Verifica que coincidan el Proyecto: '{data.get('project_name')}' y la Fase: '{data.get('phase_name')}'")
+
     # 6. Recalcular e indexar todo el árbol antes de guardar cambios
     for i in range(len(content['projects'])):
         content['projects'][i] = recalculate(content['projects'][i])
