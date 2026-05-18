@@ -4,48 +4,54 @@ import sys
 from datetime import datetime
 
 def update_projects():
-    # 1. Obtener y depurar el PAYLOAD
-    payload_raw = os.getenv('PAYLOAD', '').strip()
+    # 1. Obtener las variables del entorno independientes inyectadas por el Action
+    action = os.getenv('GITOPS_ACTION', '').strip()
+    data_raw = os.getenv('GITOPS_DATA', '').strip()
     
-    # Imprimimos para ver qué llega en los logs de GitHub
-    print(f"--- DEBUG: PAYLOAD RECIBIDO ---\n{payload_raw}\n------------------------------")
+    # Imprimimos para ver qué llega exactamente en los logs de GitHub Actions
+    print(f"--- DEBUG: ENTORNO GITOPS RECIBIDO ---")
+    print(f"Acción: {action}")
+    print(f"Datos RAW: {data_raw}")
+    print(f"--------------------------------------")
     
-    if not payload_raw or payload_raw in ['null', '{}', 'None', '']:
-        print("⚠️ PAYLOAD vacío o inválido. Verificando argumentos de sistema...")
-        # Si falló la variable de entorno, intentamos leer argumentos directos
-        if len(sys.argv) > 1:
-             payload_raw = sys.argv[1]
-        else:
-             return
-
+    # Reconstruimos el diccionario de datos de forma segura sin romper el parseo
     try:
-        payload = json.loads(payload_raw)
+        data = json.loads(data_raw) if data_raw else {}
     except json.JSONDecodeError as e:
-        print(f"❌ Error al decodificar JSON: {e}")
+        print(f"❌ Error al decodificar los datos JSON recibidos: {e}")
         return
 
-    # 2. Configuración de rutas y Acción
+    # Compatibilidad de respaldo si se llega a ejecutar pasando argumentos directos por consola
+    if not action and len(sys.argv) > 1:
+        try:
+            fallback_payload = json.loads(sys.argv[1])
+            action = fallback_payload.get('action')
+            data = fallback_payload.get('data', {})
+        except Exception as e:
+            print(f"⚠️ No se pudo procesar el argumento de respaldo: {e}")
+            return
+
+    if not action:
+        print("⚠️ No se detectó ninguna acción válida a ejecutar. Cancelando proceso.")
+        return
+
+    # 2. Configuración de rutas y validación del archivo destino
     file_path = "_data/project-schedule.json"
-    
-    # Prioridad: payload['action'] -> payload['event_type'] -> 'sync'
-    action = payload.get('action') or payload.get('event_type') or 'sync'
-    data = payload.get('data', {})
-    
     print(f"🛠️ Procesando Acción: {action}")
 
     if not os.path.exists(file_path):
-        print(f"❌ Error Crítico: No se encontró {file_path}")
+        print(f"❌ Error Crítico: No se encontró el archivo de datos en la ruta {file_path}")
         return
 
-    # 3. Lectura con manejo de errores
+    # 3. Lectura del archivo JSON existente con manejo de errores
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = json.load(f)
     except Exception as e:
-        print(f"❌ Error al leer el JSON: {e}")
+        print(f"❌ Error al leer el archivo JSON: {e}")
         return
 
-    # 4. Lógica de Negocio
+    # 4. Lógica de Negocio (Cálculos automáticos de métricas, H/H y UF)
     def recalculate(project):
         phases = project.get('phases', [])
         total_hh = 0
@@ -59,13 +65,15 @@ def update_projects():
             sum_progress += p_progress
             total_hh += sum(float(t.get('hh_spent', 0)) for t in tasks)
 
-        if 'metrics' not in project: project['metrics'] = {}
+        if 'metrics' not in project: 
+            project['metrics'] = {}
+            
         project['metrics']['total_progress'] = round(sum_progress / len(phases), 1) if phases else 0
         project['metrics']['total_hh'] = total_hh
         project['metrics']['total_uf'] = round(total_hh * 0.25, 2)
         return project
 
-    # 5. Procesar Acción (Normalización de nombres para tu JSON)
+    # 5. Procesar Operaciones CRUD basadas en la acción recibida
     if action == 'add_project':
         new_p = {
             "name": data.get('name', 'Proyecto Nuevo'),
@@ -82,24 +90,37 @@ def update_projects():
             "phases": []
         }
         content['projects'].append(new_p)
-        print(f"✅ Proyecto '{new_p['name']}' inyectado.")
+        print(f"✅ Proyecto '{new_p['name']}' inyectado correctamente en la lista.")
 
     elif action == 'add_phase':
+        project_found = False
         for p in content['projects']:
             if p['name'] == data.get('project_name'):
-                p['phases'].append({"phase_name": data.get('phase_name'), "tasks": [], "progress": 0.0})
-                print(f"✅ Fase añadida a {p['name']}")
+                p['phases'].append({
+                    "phase_name": data.get('phase_name'), 
+                    "tasks": [], 
+                    "progress": 0.0
+                })
+                project_found = True
+                print(f"✅ Fase '{data.get('phase_name')}' añadida con éxito a {p['name']}.")
+                break
+        if not project_found:
+            print(f"⚠️ Advertencia: No se encontró ningún proyecto con el nombre '{data.get('project_name')}'")
 
-    # 6. Sincronización y Guardado
+    # 6. Recalcular e indexar todo el árbol antes de guardar cambios
     for i in range(len(content['projects'])):
         content['projects'][i] = recalculate(content['projects'][i])
     
+    # Actualizar la marca de tiempo global en los metadatos del JSON
     content['metadata']['last_updated'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(content, f, indent=2, ensure_ascii=False)
-    
-    print("💾 Cambios guardados en el archivo local.")
+    # Guardar los cambios definitivos de vuelta al archivo JSON
+    try:
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(content, f, indent=2, ensure_ascii=False)
+        print("💾 Cambios persistidos y guardados con éxito en el archivo local.")
+    except Exception as e:
+        print(f"❌ Error al intentar escribir los datos en el archivo: {e}")
 
 if __name__ == "__main__":
     update_projects()
