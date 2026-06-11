@@ -1,22 +1,19 @@
-<!-- Estilos para los Modales (Corregidos para centrado y desenfoque) -->
 <style>
-    /* Contenedor principal que cubre toda la pantalla */
     .modal {
         display: none; 
         position: fixed; 
-        z-index: 10000; /* Asegura estar por encima del Dashboard */
+        z-index: 10000;
         left: 0;
         top: 0;
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(8px); /* Efecto Glassmorphism de fondo */
+        backdrop-filter: blur(8px);
     }
 
-    /* Caja de contenido del modal */
     .modal-content {
         background: #111;
-        margin: 8% auto; /* Centrado vertical aproximado */
+        margin: 8% auto;
         padding: 2.5rem;
         border: 1px solid #00d4ff;
         border-radius: 20px;
@@ -36,7 +33,6 @@
         margin-bottom: 1.5rem;
     }
 
-    /* Estilos de formulario interno */
     .form-group { margin-bottom: 1.2rem; }
     .form-group label { display: block; font-size: 0.8rem; color: #888; margin-bottom: 6px; }
     
@@ -57,7 +53,6 @@
         background: #222;
     }
 
-    /* Footer y Botones */
     .modal-footer { 
         display: flex; 
         justify-content: flex-end; 
@@ -89,7 +84,6 @@
     .btn-cancel:hover { opacity: 0.7; }
 </style>
 
-<!-- MODAL 1: NUEVO PROYECTO -->
 <div id="projectModal" class="modal">
     <div class="modal-content">
         <h3>🚀 Crear Nuevo Proyecto</h3>
@@ -114,7 +108,6 @@
     </div>
 </div>
 
-<!-- MODAL 2: AGREGAR FASE -->
 <div id="phaseModal" class="modal">
     <div class="modal-content">
         <h3>🏗️ Nueva Fase</h3>
@@ -131,7 +124,6 @@
     </div>
 </div>
 
-<!-- MODAL 3: AGREGAR TAREA -->
 <div id="taskModal" class="modal">
     <div class="modal-content">
         <h3>📝 Nueva Tarea</h3>
@@ -163,8 +155,39 @@
     </div>
 </div>
 
+<div id="editTaskModal" class="modal">
+    <div class="modal-content">
+        <h3>✏️ Editar Tarea</h3>
+        <p id="edit-task-label" style="font-size: 0.7rem; color: #00d4ff; margin-bottom: 1rem;"></p>
+        <input type="hidden" id="edit-task-project">
+        <input type="hidden" id="edit-task-phase">
+        <input type="hidden" id="edit-task-original-name">
+        
+        <div class="form-group">
+            <label>Descripción de Tarea</label>
+            <input type="text" id="edit-task-name">
+        </div>
+        <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+                <label>Horas (HH)</label>
+                <input type="number" id="edit-task-hh" step="0.5">
+            </div>
+            <div>
+                <label>Estado</label>
+                <select id="edit-task-status">
+                    <option value="en proceso">EN PROCESO</option>
+                    <option value="completada">COMPLETADA</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal('editTaskModal')">Cancelar</button>
+            <button class="btn-save" onclick="submitEditTask()">Guardar Cambios</button>
+        </div>
+    </div>
+</div>
+
 <script>
-    // 1. Apertura y Cierre Simple
     function openModal(id) { 
         document.getElementById(id).style.display = 'block'; 
     }
@@ -173,7 +196,6 @@
         document.getElementById(id).style.display = 'none'; 
     }
 
-    // 2. Inyección de Contexto
     function openPhaseModal(projectName) {
         document.getElementById('phase-target-project').value = projectName;
         document.getElementById('target-project-label').innerText = `Añadiendo a: ${projectName}`;
@@ -187,7 +209,20 @@
         openModal('taskModal');
     }
 
-    // 3. Cierre por clic exterior
+    // LÓGICA DE APERTURA PARA EDICIÓN
+    function openEditTaskModal(projectName, phaseName, taskName, hhSpent, status) {
+        document.getElementById('edit-task-project').value = projectName;
+        document.getElementById('edit-task-phase').value = phaseName;
+        document.getElementById('edit-task-original-name').value = taskName;
+        
+        document.getElementById('edit-task-name').value = taskName;
+        document.getElementById('edit-task-hh').value = hhSpent;
+        document.getElementById('edit-task-status').value = status.toLowerCase();
+        
+        document.getElementById('edit-task-label').innerText = `Modificando en: ${projectName} > ${phaseName}`;
+        openModal('editTaskModal');
+    }
+
     window.onclick = function(event) {
         if (event.target.className === 'modal') {
             event.target.style.display = "none";
