@@ -107,16 +107,12 @@ def update_projects():
         if not project_found:
             print(f"⚠️ Advertencia: No se encontró ningún proyecto con el nombre '{data.get('project_name')}'")
 
-    # === BLOQUE AÑADIDO: AGREGAR TAREAS ===
     elif action == 'add_task':
         task_inserted = False
-        # Buscamos el proyecto destino
         for p in content['projects']:
             if p['name'] == data.get('project_name'):
-                # Buscamos la fase destino dentro de ese proyecto
                 for phase in p.get('phases', []):
                     if phase['phase_name'] == data.get('phase_name'):
-                        # Construimos la nueva tarea mapeando las llaves exactas de tu JSON
                         new_task = {
                             "task_name": data.get('task_name', 'Nueva Tarea'),
                             "hh_spent": float(data.get('hh', 0)),
@@ -131,7 +127,26 @@ def update_projects():
                 if task_inserted:
                     break
         if not task_inserted:
-            print(f"⚠️ Advertencia: No se pudo enlazar la tarea. Verifica que coincidan el Proyecto: '{data.get('project_name')}' y la Fase: '{data.get('phase_name')}'")
+            print(f"⚠️ Advertencia: No se pudo enlazar la tarea.")
+
+    # === NUEVO BLOQUE: MODIFICAR / EDITAR TAREA ===
+    elif action == 'edit_task':
+        task_updated = False
+        for p in content['projects']:
+            if p['name'] == data.get('project_name'):
+                for phase in p.get('phases', []):
+                    if phase['phase_name'] == data.get('phase_name'):
+                        for task in phase.get('tasks', []):
+                            # Identificamos por el nombre original antes del cambio
+                            if task['task_name'] == data.get('original_task_name'):
+                                task['task_name'] = data.get('task_name', task['task_name'])
+                                task['hh_spent'] = float(data.get('hh', 0))
+                                task['status'] = data.get('status', 'en proceso').lower()
+                                task_updated = True
+                                print(f"✅ Tarea modificada: {data.get('original_task_name')} -> {task['task_name']}")
+                                break
+        if not task_updated:
+            print(f"⚠️ Advertencia: No se encontró la tarea '{data.get('original_task_name')}' para modificar.")
 
     # 6. Recalcular e indexar todo el árbol antes de guardar cambios
     for i in range(len(content['projects'])):
