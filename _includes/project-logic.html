@@ -3,9 +3,8 @@
  * 1. CONFIGURACIÓN DE SEGURIDAD Y GITOPS
  */
 let GITHUB_TOKEN = localStorage.getItem('gitops_token');
-const GITHUB_REPO = "sloty00/projects"; // Repositorio destino
+const GITHUB_REPO = "sloty00/projects"; 
 
-// Gestión de credenciales
 if (!GITHUB_TOKEN) {
     GITHUB_TOKEN = prompt("🔑 Configuración GitOps:\nIngresa tu Personal Access Token:");
     if (GITHUB_TOKEN) {
@@ -15,7 +14,6 @@ if (!GITHUB_TOKEN) {
 
 /**
  * 2. MOTOR DE ENVÍO A GITHUB (GITOPS)
- * Configurado para disparar repository_dispatch hacia el buzón general
  */
 async function sendToGitOps(action, data) {
     if (GITHUB_TOKEN && GITHUB_TOKEN.toUpperCase() === 'DEMO') {
@@ -30,7 +28,6 @@ async function sendToGitOps(action, data) {
         return;
     }
 
-    // URL universal para eventos de repositorio (CORREGIDA)
     const url = `https://api.github.com/repos/${GITHUB_REPO}/dispatches`;
     
     try {
@@ -42,7 +39,7 @@ async function sendToGitOps(action, data) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                event_type: action, // Debe coincidir con los types del YAML: add_project, add_phase, add_task
+                event_type: action, 
                 client_payload: {
                     data: data
                 }
@@ -66,13 +63,12 @@ async function sendToGitOps(action, data) {
  * 3. HANDLERS DE FORMULARIOS
  */
 function submitProject() {
-    // Capturamos los datos y añadimos uf/mora que tu YAML pide para el script Python
     const data = {
         name: document.getElementById('p-name').value,
         start: document.getElementById('p-start').value,
         end: document.getElementById('p-end').value,
-        uf: "38000", // Valor por defecto para el motor
-        mora: "0.25"  // Valor por defecto para el motor
+        uf: "38000", 
+        mora: "0.25"  
     };
     if (!data.name || !data.end) return alert("El nombre y la fecha de término son obligatorios.");
     sendToGitOps('add_project', data);
@@ -99,9 +95,22 @@ function submitTask() {
     sendToGitOps('add_task', data);
 }
 
+// HANDLER PARA ENVÍO DE EDICIÓN
+function submitEditTask() {
+    const data = {
+        project_name: document.getElementById('edit-task-project').value,
+        phase_name: document.getElementById('edit-task-phase').value,
+        original_task_name: document.getElementById('edit-task-original-name').value,
+        task_name: document.getElementById('edit-task-name').value,
+        hh: parseFloat(document.getElementById('edit-task-hh').value) || 0,
+        status: document.getElementById('edit-task-status').value
+    };
+    if (!data.task_name) return alert("El nombre de la tarea no puede estar vacío.");
+    sendToGitOps('edit_task', data);
+}
+
 /**
  * 4. LÓGICA DE RENDERIZADO Y CÁLCULOS
- * Procesa los datos del JSON para mostrar indicadores financieros
  */
 document.addEventListener("DOMContentLoaded", function() {
     const projects = document.querySelectorAll('.project-block');
@@ -115,7 +124,6 @@ document.addEventListener("DOMContentLoaded", function() {
         let totalPhasesProgress = 0;
         let phases = project.querySelectorAll('.phase-container');
 
-        // Cálculo de Tiempo
         if (endDateStr) {
             const end = new Date(endDateStr);
             const today = new Date();
@@ -129,7 +137,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
 
-        // Progreso de Fases y Tareas
         phases.forEach(phase => {
             const tasks = phase.querySelectorAll('.task-item');
             let phaseHH = 0;
@@ -151,12 +158,10 @@ document.addEventListener("DOMContentLoaded", function() {
             totalPhasesProgress += phaseProgress;
         });
 
-        // Cálculos Financieros
         const totalUF = (totalHH * tasaCobro).toFixed(2);
         const totalCLP = Math.round(totalUF * valorReferenciaUF);
         const globalProgress = phases.length > 0 ? Math.round(totalPhasesProgress / phases.length) : 0;
 
-        // Inyección en DOM
         if (project.querySelector('.js-total-uf')) project.querySelector('.js-total-uf').innerText = `${totalUF} UF`;
         if (project.querySelector('.js-total-clp')) project.querySelector('.js-total-clp').innerText = `$${totalCLP.toLocaleString('es-CL')} CLP`;
         if (project.querySelector('.js-total-hh')) project.querySelector('.js-total-hh').innerText = `${totalHH} H/H registradas`;
@@ -167,9 +172,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-/**
- * 5. UTILIDADES
- */
 function closeAllModals() {
     document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
 }
