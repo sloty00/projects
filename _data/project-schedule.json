@@ -5,7 +5,7 @@
       "status": "Activo",
       "dates": {
         "contract_start": "2026-05-03",
-        "contract_end": "2026-06-15"
+        "contract_end": "2026-06-30"
       },
       "metrics": {
         "uf_valor_referencia": 38000.0,
@@ -55,7 +55,7 @@
       "status": "Activo",
       "dates": {
         "contract_start": "2026-05-19",
-        "contract_end": "2026-05-30"
+        "contract_end": "2026-06-30"
       },
       "metrics": {
         "uf_valor_referencia": 38000.0,
