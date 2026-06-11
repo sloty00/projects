@@ -61,7 +61,7 @@
         "uf_valor_referencia": 38000.0,
         "tasa_por_hora": 0.25,
         "status_label": "Activo",
-        "total_progress": 100.0,
+        "total_progress": 50.0,
         "total_hh": 13.0,
         "total_uf": 3.25
       },
@@ -88,15 +88,15 @@
             {
               "task_name": "Modelado ORM",
               "hh_spent": 1.0,
-              "status": "completada"
+              "status": "en proceso"
             }
           ],
-          "progress": 100.0
+          "progress": 0.0
         }
       ]
     }
   ],
   "metadata": {
-    "last_updated": "2026-06-11 22:18:14"
+    "last_updated": "2026-06-11 22:27:50"
   }
 }
