@@ -3,7 +3,7 @@ name: "System: Add Project Entry"
 on:
   # Escucha los eventos disparados desde el JavaScript del Dashboard
   repository_dispatch:
-    types: [add_project, add_phase, add_task]
+    types: [add_project, add_phase, add_task, edit_task] # <-- Agregado edit_task aquí
 
 permissions:
   contents: write
@@ -37,5 +37,5 @@ jobs:
           git config --global user.name "System-Bot"
           git config --global user.email "bot@system.local"
           git add _data/project-schedule.json
-          # Solo hace commit si hubo cambios reales en el JSON
-          git diff --quiet && git diff --staged --quiet || (git commit -m "data: remote update [${{ github.event.client_payload.data.name }}]" && git push)
+          # Cambiado data.name por github.event.action para que el mensaje sirva para cualquier operación (add o edit)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "data: remote update [${{ github.event.action }}]" && git push)
