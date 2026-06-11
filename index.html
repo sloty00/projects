@@ -8,7 +8,6 @@ layout: default
             <h1>Project Dashboard</h1>
             <p>Control de Gestión GitOps • Actualizado: {{ site.data.project-schedule.metadata.last_updated }}</p>
         </div>
-        <!-- BOTÓN PRINCIPAL: AÑADIR PROYECTO -->
         <button onclick="openModal('projectModal')" class="btn-add" style="background: #00d4ff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">
             + Nuevo Proyecto
         </button>
@@ -25,7 +24,6 @@ layout: default
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
                 <div>
                     <h2 style="color: #00d4ff; margin: 0;">{{ project.name }}</h2>
-                    <!-- BOTÓN AGREGAR FASE -->
                     <button onclick="openPhaseModal('{{ project.name }}')" style="background: none; border: 1px solid #00d4ff; color: #00d4ff; font-size: 0.7rem; padding: 4px 8px; margin-top: 10px; cursor: pointer; border-radius: 4px;">
                         + Agregar Fase
                     </button>
@@ -66,7 +64,6 @@ layout: default
             <div class="phase-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 10px;">
                 <h4 style="color: #888; font-size: 0.75rem; margin: 0;">FASE: {{ phase.phase_name }}</h4>
                 <div style="display: flex; align-items: center; gap: 15px;">
-                    <!-- BOTÓN AGREGAR TAREA -->
                     <button onclick="openTaskModal('{{ project.name }}', '{{ phase.phase_name }}')" style="background: #00ff88; color: #000; border: none; font-size: 0.6rem; padding: 2px 6px; border-radius: 3px; cursor: pointer; font-weight: bold;">
                         + Tarea
                     </button>
@@ -75,13 +72,18 @@ layout: default
             </div>
             <ul class="task-list" style="list-style: none; padding: 0;">
                 {% for task in phase.tasks %}
-                <li class="task-item" data-hh="{{ task.hh_spent }}" data-status="{{ task.status }}" style="display: flex; justify-content: space-between; padding: 4px 0;">
+                <li class="task-item" data-hh="{{ task.hh_spent }}" data-status="{{ task.status }}" style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0;">
                     <span style="{% if task.status == 'completada' %}opacity: 0.4; text-decoration: line-through;{% endif %}">
                         • {{ task.task_name }}
                     </span>
-                    <span style="font-size: 0.7rem; color: #666;">
-                        {{ task.hh_spent }} hrs | <b style="color: {% if task.status == 'completada' %}#00ff88{% else %}#eab308{% endif %};">{{ task.status | upcase }}</b>
-                    </span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 0.7rem; color: #666;">
+                            {{ task.hh_spent }} hrs | <b style="color: {% if task.status == 'completada' %}#00ff88{% else %}#eab308{% endif %};">{{ task.status | upcase }}</b>
+                        </span>
+                        <button onclick="openEditTaskModal('{{ project.name }}', '{{ phase.phase_name }}', '{{ task.task_name }}', '{{ task.hh_spent }}', '{{ task.status }}')" style="background: rgba(0, 212, 255, 0.1); color: #00d4ff; border: 1px solid #00d4ff; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; cursor: pointer;">
+                            Editar
+                        </button>
+                    </div>
                 </li>
                 {% endfor %}
             </ul>
@@ -91,6 +93,5 @@ layout: default
     {% endfor %}
 </div>
 
-<!-- INCLUDES DE LÓGICA Y FORMULARIOS -->
 {% include project-modals.html %}
 {% include project-logic.html %}
