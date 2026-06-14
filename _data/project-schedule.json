@@ -62,8 +62,8 @@
         "tasa_por_hora": 0.25,
         "status_label": "Activo",
         "total_progress": 50.0,
-        "total_hh": 15.0,
-        "total_uf": 3.75
+        "total_hh": 17.0,
+        "total_uf": 4.25
       },
       "phases": [
         {
@@ -94,6 +94,11 @@
               "task_name": "Tarea 2: Definición de restricciones de integridad (Foreign Keys, Unique, Not Null).",
               "hh_spent": 2.0,
               "status": "en proceso"
+            },
+            {
+              "task_name": "Tarea 3: Diseño de índices para optimización de consultas (Performance Tuning).",
+              "hh_spent": 2.0,
+              "status": "en proceso"
             }
           ],
           "progress": 0.0
@@ -102,6 +107,6 @@
     }
   ],
   "metadata": {
-    "last_updated": "2026-06-14 02:22:06"
+    "last_updated": "2026-06-14 02:23:13"
   }
 }
