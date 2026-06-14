@@ -86,7 +86,7 @@
           "phase_name": "Crear Modelado ORM",
           "tasks": [
             {
-              "task_name": "Modelado ORM",
+              "task_name": "Tarea 1: Modelado ORM (Mapeo de objetos a tablas).",
               "hh_spent": 1.0,
               "status": "en proceso"
             }
@@ -97,6 +97,6 @@
     }
   ],
   "metadata": {
-    "last_updated": "2026-06-14 02:18:29"
+    "last_updated": "2026-06-14 02:20:00"
   }
 }
