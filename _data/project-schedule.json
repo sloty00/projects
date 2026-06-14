@@ -75,7 +75,7 @@
               "status": "completada"
             },
             {
-              "task_name": "Tarea 2",
+              "task_name": "Tarea 2: Diccionario de datos y definición de tipos de campos.",
               "hh_spent": 4.0,
               "status": "completada"
             }
@@ -97,6 +97,6 @@
     }
   ],
   "metadata": {
-    "last_updated": "2026-06-14 02:17:04"
+    "last_updated": "2026-06-14 02:18:29"
   }
 }
