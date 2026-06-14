@@ -70,7 +70,7 @@
           "phase_name": "Crear Diagrama E/R",
           "tasks": [
             {
-              "task_name": "Tarea 1",
+              "task_name": "Tarea 1: Diagrama Entidad-Relación (E/R) normalizado.",
               "hh_spent": 8.0,
               "status": "completada"
             },
@@ -97,6 +97,6 @@
     }
   ],
   "metadata": {
-    "last_updated": "2026-06-11 22:27:50"
+    "last_updated": "2026-06-14 02:17:04"
   }
 }
