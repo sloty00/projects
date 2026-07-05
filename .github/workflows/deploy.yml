@@ -3,9 +3,9 @@ name: Deploy Jekyll with GitHub Actions
 on:
   push:
     branches: ["main"]
-  # Esto permite que el sitio se actualice cuando otros workflows (como el tuyo) terminan
+  # Esto permite que el sitio se actualice cuando el workflow de gestión de proyectos termina
   workflow_run:
-    workflows: ["System: Add Project Entry"]
+    workflows: ["System: Manage Projects"]
     types:
       - completed
 
