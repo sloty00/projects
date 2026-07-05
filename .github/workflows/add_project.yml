@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           # Se usa el secreto GITOPS_TOKEN configurado en Settings para poder hacer push
-          token: ${{ secrets.GITOPS_TOKEN }}
+          token: ${{ secrets.GITOPS_PROJECTS }}
 
       - name: Setup Python
         uses: actions/setup-python@v4
