@@ -1,23 +1,6 @@
 {
   "metadata": {
-    "last_updated": "2026-07-05 23:35:41"
+    "last_updated": "2026-07-05 23:37:44"
   },
-  "projects": [
-    {
-      "name": "Creacion de pagina empresarial DEVNOD",
-      "status": "Activo",
-      "dates": {
-        "contract_start": "2026-06-03",
-        "contract_end": "2026-07-06"
-      },
-      "metrics": {
-        "uf_valor_referencia": 38000.0,
-        "tasa_por_hora": 0.25,
-        "total_progress": 0,
-        "total_hh": 0,
-        "total_uf": 0.0
-      },
-      "phases": []
-    }
-  ]
+  "projects": []
 }
