@@ -60,15 +60,13 @@ async function sendToGitOps(action, data) {
 }
 
 /**
- * 3. HANDLERS DE FORMULARIOS
+ * 3. HANDLERS DE FORMULARIOS Y ACCIONES
  */
 function submitProject() {
     const data = {
         name: document.getElementById('p-name').value,
         start: document.getElementById('p-start').value,
-        end: document.getElementById('p-end').value,
-        uf: "38000", 
-        mora: "0.25"  
+        end: document.getElementById('p-end').value
     };
     if (!data.name || !data.end) return alert("El nombre y la fecha de término son obligatorios.");
     sendToGitOps('add_project', data);
@@ -95,7 +93,6 @@ function submitTask() {
     sendToGitOps('add_task', data);
 }
 
-// HANDLER PARA ENVÍO DE EDICIÓN
 function submitEditTask() {
     const data = {
         project_name: document.getElementById('edit-task-project').value,
@@ -107,6 +104,25 @@ function submitEditTask() {
     };
     if (!data.task_name) return alert("El nombre de la tarea no puede estar vacío.");
     sendToGitOps('edit_task', data);
+}
+
+// NUEVAS FUNCIONES DE ELIMINACIÓN
+function deleteTask(proj, phase, task) {
+    if(confirm(`¿Estás seguro de eliminar la tarea: ${task}?`)) {
+        sendToGitOps('delete_task', {project_name: proj, phase_name: phase, task_name: task});
+    }
+}
+
+function deletePhase(proj, phase) {
+    if(confirm(`¿Estás seguro de eliminar la fase: ${phase}? (Solo si no contiene tareas)`)) {
+        sendToGitOps('delete_phase', {project_name: proj, phase_name: phase});
+    }
+}
+
+function deleteProject(proj) {
+    if(confirm(`¿Estás seguro de ELIMINAR el proyecto: ${proj}? (Solo si no contiene fases)`)) {
+        sendToGitOps('delete_project', {project_name: proj});
+    }
 }
 
 /**
