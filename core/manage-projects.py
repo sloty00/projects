@@ -9,7 +9,6 @@ def update_projects():
     
     print(f"--- DEBUG: ENTORNO GITOPS RECIBIDO ---")
     print(f"Acción: {action} | Datos RAW: {data_raw}")
-    print(f"--------------------------------------")
     
     try:
         data = json.loads(data_raw) if data_raw else {}
@@ -18,23 +17,18 @@ def update_projects():
         return
 
     if not action:
-        print("⚠️ No se detectó ninguna acción.")
         return
 
     # 2. Configuración y carga
     file_path = "_data/project-schedule.json"
     try:
-        if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
-            content = {"metadata": {"last_updated": ""}, "projects": []}
-        else:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = json.load(f)
-                if 'projects' not in content: content['projects'] = []
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = json.load(f)
     except Exception as e:
         print(f"❌ Error crítico de carga: {e}")
         return
 
-    # 3. Motor de recálculo (Mantenido constante)
+    # 3. Motor de recálculo
     def recalculate(project):
         phases = project.get('phases', [])
         total_hh = 0
@@ -52,7 +46,7 @@ def update_projects():
         project['metrics']['total_uf'] = round(total_hh * project.get('metrics', {}).get('tasa_por_hora', 0.25), 2)
         return project
 
-    # 4. Operaciones CRUD
+    # 4. Operaciones CRUD (Corregidas para eliminar sin restricciones)
     target_name = data.get('project_name', '').strip().lower()
 
     if action == 'add_project':
@@ -90,13 +84,14 @@ def update_projects():
     elif action == 'delete_phase':
         for p in content['projects']:
             if p['name'].strip().lower() == target_name:
-                # Solo eliminamos si no hay tareas (o si decides forzarlo, quita el 'not ph.get("tasks")')
-                p['phases'] = [ph for ph in p.get('phases', []) if ph['phase_name'] != data.get('phase_name') or ph.get('tasks')]
+                # Eliminación directa sin restricciones
+                p['phases'] = [ph for ph in p.get('phases', []) if ph['phase_name'] != data.get('phase_name')]
 
     elif action == 'delete_project':
-        content['projects'] = [p for p in content['projects'] if p['name'].strip().lower() != target_name or p.get('phases')]
+        # Eliminación directa sin restricciones
+        content['projects'] = [p for p in content['projects'] if p['name'].strip().lower() != target_name]
 
-    # 5. Persistencia y Cierre
+    # 5. Persistencia
     for p in content['projects']:
         recalculate(p)
     
@@ -105,7 +100,7 @@ def update_projects():
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(content, f, indent=2, ensure_ascii=False)
     
-    print(f"✅ Acción '{action}' completada y datos guardados.")
+    print(f"✅ Acción '{action}' completada.")
 
 if __name__ == "__main__":
     update_projects()
