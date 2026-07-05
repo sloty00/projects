@@ -21,7 +21,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # Se usa el secreto GITOPS_PROJECTS configurado en Settings para poder hacer push
           token: ${{ secrets.GITOPS_PROJECTS }}
 
       - name: Setup Python
@@ -30,7 +29,6 @@ jobs:
           python-version: '3.10'
 
       - name: Run Engine
-        # Inyectamos las variables limpias al entorno de Linux de forma independiente
         env:
           GITOPS_ACTION: ${{ github.event.action }}
           GITOPS_DATA: ${{ toJson(github.event.client_payload.data) }}
@@ -41,9 +39,17 @@ jobs:
         run: |
           git config --global user.name "System-Bot"
           git config --global user.email "bot@system.local"
+          
+          # Añadimos el archivo explícitamente
           git add _data/project-schedule.json
-          # Verificamos si hay cambios antes de hacer commit
-          if ! git diff --quiet; then
+          
+          # DEBUG: Mostramos si git detecta cambios antes del commit
+          git status
+          
+          # Verificamos si hay cambios en el área de preparación (staging)
+          if ! git diff --quiet --cached; then
             git commit -m "data: remote update [${{ github.event.action }}]"
             git push
+          else
+            echo "No se detectaron cambios pendientes de commit en _data/project-schedule.json"
           fi
