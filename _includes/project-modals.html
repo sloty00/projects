@@ -74,36 +74,37 @@
 
     .btn-cancel { 
         background: transparent; 
-        color: #ff4d4d; 
-        border: 1px solid #ff4d4d; 
+        color: #aaa; 
+        border: 1px solid #333; 
         padding: 10px 24px; 
         border-radius: 8px; 
         cursor: pointer; 
-        transition: opacity 0.2s;
     }
-    .btn-cancel:hover { opacity: 0.7; }
+
+    .btn-delete {
+        background: transparent;
+        color: #ff4d4d;
+        border: 1px solid #ff4d4d;
+        padding: 10px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-right: auto; /* Empuja al inicio */
+    }
+    .btn-delete:hover { background: #ff4d4d; color: white; }
 </style>
 
+<!-- Modales simplificados para creación -->
 <div id="projectModal" class="modal">
     <div class="modal-content">
         <h3>🚀 Crear Nuevo Proyecto</h3>
-        <div class="form-group">
-            <label>Nombre del Proyecto</label>
-            <input type="text" id="p-name" placeholder="Ej: Optimización DB">
-        </div>
+        <div class="form-group"><label>Nombre</label><input type="text" id="p-name"></div>
         <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div>
-                <label>Fecha Inicio</label>
-                <input type="date" id="p-start">
-            </div>
-            <div>
-                <label>Fecha Fin</label>
-                <input type="date" id="p-end">
-            </div>
+            <div><label>Inicio</label><input type="date" id="p-start"></div>
+            <div><label>Fin</label><input type="date" id="p-end"></div>
         </div>
         <div class="modal-footer">
             <button class="btn-cancel" onclick="closeModal('projectModal')">Cancelar</button>
-            <button class="btn-save" onclick="submitProject()">Crear Proyecto</button>
+            <button class="btn-save" onclick="submitProject()">Crear</button>
         </div>
     </div>
 </div>
@@ -111,15 +112,11 @@
 <div id="phaseModal" class="modal">
     <div class="modal-content">
         <h3>🏗️ Nueva Fase</h3>
-        <p id="target-project-label" style="font-size: 0.8rem; color: #00d4ff; margin-bottom: 1rem;"></p>
         <input type="hidden" id="phase-target-project">
-        <div class="form-group">
-            <label>Nombre de la Fase</label>
-            <input type="text" id="phase-name" placeholder="Ej: Testing QA">
-        </div>
+        <div class="form-group"><label>Nombre de la Fase</label><input type="text" id="phase-name"></div>
         <div class="modal-footer">
             <button class="btn-cancel" onclick="closeModal('phaseModal')">Cancelar</button>
-            <button class="btn-save" onclick="submitPhase()">Añadir Fase</button>
+            <button class="btn-save" onclick="submitPhase()">Añadir</button>
         </div>
     </div>
 </div>
@@ -127,105 +124,70 @@
 <div id="taskModal" class="modal">
     <div class="modal-content">
         <h3>📝 Nueva Tarea</h3>
-        <p id="target-task-label" style="font-size: 0.7rem; color: #888; margin-bottom: 1rem;"></p>
         <input type="hidden" id="task-target-project">
         <input type="hidden" id="task-target-phase">
-        
-        <div class="form-group">
-            <label>Descripción de Tarea</label>
-            <input type="text" id="task-name" placeholder="Ej: Revisión de logs">
-        </div>
+        <div class="form-group"><label>Descripción</label><input type="text" id="task-name"></div>
         <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div>
-                <label>Horas (HH)</label>
-                <input type="number" id="task-hh" value="0" step="0.5">
-            </div>
-            <div>
-                <label>Estado Inicial</label>
-                <select id="task-status">
-                    <option value="en proceso">EN PROCESO</option>
-                    <option value="completada">COMPLETADA</option>
-                </select>
-            </div>
+            <div><label>Horas (HH)</label><input type="number" id="task-hh" value="0" step="0.5"></div>
+            <div><label>Estado</label><select id="task-status"><option value="en proceso">En Proceso</option><option value="completada">Completada</option></select></div>
         </div>
         <div class="modal-footer">
             <button class="btn-cancel" onclick="closeModal('taskModal')">Cancelar</button>
-            <button class="btn-save" onclick="submitTask()">Añadir Tarea</button>
+            <button class="btn-save" onclick="submitTask()">Añadir</button>
         </div>
     </div>
 </div>
 
+<!-- Modal de edición con botón eliminar -->
 <div id="editTaskModal" class="modal">
     <div class="modal-content">
         <h3>✏️ Editar Tarea</h3>
-        <p id="edit-task-label" style="font-size: 0.7rem; color: #00d4ff; margin-bottom: 1rem;"></p>
         <input type="hidden" id="edit-task-project">
         <input type="hidden" id="edit-task-phase">
         <input type="hidden" id="edit-task-original-name">
-        
-        <div class="form-group">
-            <label>Descripción de Tarea</label>
-            <input type="text" id="edit-task-name">
-        </div>
+        <div class="form-group"><label>Descripción</label><input type="text" id="edit-task-name"></div>
         <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div>
-                <label>Horas (HH)</label>
-                <input type="number" id="edit-task-hh" step="0.5">
-            </div>
-            <div>
-                <label>Estado</label>
-                <select id="edit-task-status">
-                    <option value="en proceso">EN PROCESO</option>
-                    <option value="completada">COMPLETADA</option>
-                </select>
-            </div>
+            <div><label>Horas</label><input type="number" id="edit-task-hh" step="0.5"></div>
+            <div><label>Estado</label><select id="edit-task-status"><option value="en proceso">En Proceso</option><option value="completada">Completada</option></select></div>
         </div>
         <div class="modal-footer">
+            <button class="btn-delete" onclick="handleDeleteTask()">Eliminar Tarea</button>
             <button class="btn-cancel" onclick="closeModal('editTaskModal')">Cancelar</button>
-            <button class="btn-save" onclick="submitEditTask()">Guardar Cambios</button>
+            <button class="btn-save" onclick="submitEditTask()">Guardar</button>
         </div>
     </div>
 </div>
 
 <script>
-    function openModal(id) { 
-        document.getElementById(id).style.display = 'block'; 
-    }
+    function openModal(id) { document.getElementById(id).style.display = 'block'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    function openPhaseModal(p) { document.getElementById('phase-target-project').value = p; openModal('phaseModal'); }
     
-    function closeModal(id) { 
-        document.getElementById(id).style.display = 'none'; 
+    function openTaskModal(p, ph) { 
+        document.getElementById('task-target-project').value = p; 
+        document.getElementById('task-target-phase').value = ph; 
+        openModal('taskModal'); 
     }
 
-    function openPhaseModal(projectName) {
-        document.getElementById('phase-target-project').value = projectName;
-        document.getElementById('target-project-label').innerText = `Añadiendo a: ${projectName}`;
-        openModal('phaseModal');
-    }
-
-    function openTaskModal(projectName, phaseName) {
-        document.getElementById('task-target-project').value = projectName;
-        document.getElementById('task-target-phase').value = phaseName;
-        document.getElementById('target-task-label').innerText = `Destino: ${projectName} > ${phaseName}`;
-        openModal('taskModal');
-    }
-
-    // LÓGICA DE APERTURA PARA EDICIÓN
-    function openEditTaskModal(projectName, phaseName, taskName, hhSpent, status) {
-        document.getElementById('edit-task-project').value = projectName;
-        document.getElementById('edit-task-phase').value = phaseName;
-        document.getElementById('edit-task-original-name').value = taskName;
-        
-        document.getElementById('edit-task-name').value = taskName;
-        document.getElementById('edit-task-hh').value = hhSpent;
+    function openEditTaskModal(p, ph, name, hh, status) {
+        document.getElementById('edit-task-project').value = p;
+        document.getElementById('edit-task-phase').value = ph;
+        document.getElementById('edit-task-original-name').value = name;
+        document.getElementById('edit-task-name').value = name;
+        document.getElementById('edit-task-hh').value = hh;
         document.getElementById('edit-task-status').value = status.toLowerCase();
-        
-        document.getElementById('edit-task-label').innerText = `Modificando en: ${projectName} > ${phaseName}`;
         openModal('editTaskModal');
     }
 
+    function handleDeleteTask() {
+        const p = document.getElementById('edit-task-project').value;
+        const ph = document.getElementById('edit-task-phase').value;
+        const name = document.getElementById('edit-task-original-name').value;
+        deleteTask(p, ph, name);
+    }
+
     window.onclick = function(event) {
-        if (event.target.className === 'modal') {
-            event.target.style.display = "none";
-        }
+        if (event.target.className === 'modal') event.target.style.display = "none";
     }
 </script>
