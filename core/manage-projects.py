@@ -4,54 +4,50 @@ import sys
 from datetime import datetime
 
 def update_projects():
-    # 1. Obtener las variables del entorno independientes inyectadas por el Action
+    # 1. Obtener las variables del entorno inyectadas por el Action
     action = os.getenv('GITOPS_ACTION', '').strip()
     data_raw = os.getenv('GITOPS_DATA', '').strip()
     
-    # Imprimimos para ver qué llega exactamente en los logs de GitHub Actions
     print(f"--- DEBUG: ENTORNO GITOPS RECIBIDO ---")
     print(f"Acción: {action}")
     print(f"Datos RAW: {data_raw}")
     print(f"--------------------------------------")
     
-    # Reconstruimos el diccionario de datos de forma segura sin romper el parseo
     try:
         data = json.loads(data_raw) if data_raw else {}
     except json.JSONDecodeError as e:
         print(f"❌ Error al decodificar los datos JSON recibidos: {e}")
         return
 
-    # Compatibilidad de respaldo si se llega a ejecutar pasando argumentos directos por consola
-    if not action and len(sys.argv) > 1:
-        try:
-            fallback_payload = json.loads(sys.argv[1])
-            action = fallback_payload.get('action')
-            data = fallback_payload.get('data', {})
-        except Exception as e:
-            print(f"⚠️ No se pudo procesar el argumento de respaldo: {e}")
-            return
-
     if not action:
-        print("⚠️ No se detectó ninguna acción válida a ejecutar. Cancelando proceso.")
+        print("⚠️ No se detectó ninguna acción válida a ejecutar.")
         return
 
-    # 2. Configuración de rutas y validación del archivo destino
+    # 2. Configuración de rutas
     file_path = "_data/project-schedule.json"
     print(f"🛠️ Procesando Acción: {action}")
 
-    if not os.path.exists(file_path):
-        print(f"❌ Error Crítico: No se encontró el archivo de datos en la ruta {file_path}")
-        return
-
-    # 3. Lectura del archivo JSON existente con manejo de errores
+    # 3. Lectura robusta del archivo JSON (RED DE SEGURIDAD)
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = json.load(f)
+        if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
+            print(f"⚠️ Archivo inexistente o vacío, iniciando estructura base.")
+            content = {"metadata": {"last_updated": ""}, "projects": []}
+        else:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = json.load(f)
+                # Asegurar que la estructura mínima exista
+                if 'projects' not in content:
+                    content['projects'] = []
+                if 'metadata' not in content:
+                    content['metadata'] = {}
+    except json.JSONDecodeError:
+        print(f"⚠️ Archivo JSON corrupto detectado. Reiniciando estructura limpia.")
+        content = {"metadata": {"last_updated": ""}, "projects": []}
     except Exception as e:
-        print(f"❌ Error al leer el archivo JSON: {e}")
+        print(f"❌ Error crítico al leer el archivo JSON: {e}")
         return
 
-    # 4. Lógica de Negocio (Cálculos automáticos de métricas, H/H y UF)
+    # 4. Lógica de Negocio
     def recalculate(project):
         phases = project.get('phases', [])
         total_hh = 0
@@ -73,42 +69,19 @@ def update_projects():
         project['metrics']['total_uf'] = round(total_hh * 0.25, 2)
         return project
 
-    # 5. Procesar Operaciones CRUD basadas en la acción recibida
+    # 5. Operaciones CRUD
     if action == 'add_project':
         new_p = {
             "name": data.get('name', 'Proyecto Nuevo'),
             "status": "Activo",
-            "dates": {
-                "contract_start": data.get('start'), 
-                "contract_end": data.get('end')
-            },
-            "metrics": {
-                "uf_valor_referencia": 38000.0,
-                "tasa_por_hora": 0.25,
-                "status_label": "Activo"
-            },
+            "dates": {"contract_start": data.get('start'), "contract_end": data.get('end')},
+            "metrics": {"uf_valor_referencia": 38000.0, "tasa_por_hora": 0.25, "status_label": "Activo"},
             "phases": []
         }
         content['projects'].append(new_p)
-        print(f"✅ Proyecto '{new_p['name']}' inyectado correctamente en la lista.")
-
-    elif action == 'add_phase':
-        project_found = False
-        for p in content['projects']:
-            if p['name'] == data.get('project_name'):
-                p['phases'].append({
-                    "phase_name": data.get('phase_name'), 
-                    "tasks": [], 
-                    "progress": 0.0
-                })
-                project_found = True
-                print(f"✅ Fase '{data.get('phase_name')}' añadida con éxito a {p['name']}.")
-                break
-        if not project_found:
-            print(f"⚠️ Advertencia: No se encontró ningún proyecto con el nombre '{data.get('project_name')}'")
+        print(f"✅ Proyecto '{new_p['name']}' inyectado.")
 
     elif action == 'add_task':
-        task_inserted = False
         for p in content['projects']:
             if p['name'] == data.get('project_name'):
                 for phase in p.get('phases', []):
@@ -118,50 +91,22 @@ def update_projects():
                             "hh_spent": float(data.get('hh', 0)),
                             "status": data.get('status', 'en proceso').lower()
                         }
-                        if 'tasks' not in phase:
-                            phase['tasks'] = []
-                        phase['tasks'].append(new_task)
-                        task_inserted = True
-                        print(f"✅ Tarea '{new_task['task_name']}' añadida con éxito a la fase '{phase['phase_name']}' de {p['name']}.")
+                        phase.setdefault('tasks', []).append(new_task)
+                        print(f"✅ Tarea añadida.")
                         break
-                if task_inserted:
-                    break
-        if not task_inserted:
-            print(f"⚠️ Advertencia: No se pudo enlazar la tarea.")
 
-    # === NUEVO BLOQUE: MODIFICAR / EDITAR TAREA ===
-    elif action == 'edit_task':
-        task_updated = False
-        for p in content['projects']:
-            if p['name'] == data.get('project_name'):
-                for phase in p.get('phases', []):
-                    if phase['phase_name'] == data.get('phase_name'):
-                        for task in phase.get('tasks', []):
-                            # Identificamos por el nombre original antes del cambio
-                            if task['task_name'] == data.get('original_task_name'):
-                                task['task_name'] = data.get('task_name', task['task_name'])
-                                task['hh_spent'] = float(data.get('hh', 0))
-                                task['status'] = data.get('status', 'en proceso').lower()
-                                task_updated = True
-                                print(f"✅ Tarea modificada: {data.get('original_task_name')} -> {task['task_name']}")
-                                break
-        if not task_updated:
-            print(f"⚠️ Advertencia: No se encontró la tarea '{data.get('original_task_name')}' para modificar.")
-
-    # 6. Recalcular e indexar todo el árbol antes de guardar cambios
+    # 6. Guardar cambios
     for i in range(len(content['projects'])):
         content['projects'][i] = recalculate(content['projects'][i])
     
-    # Actualizar la marca de tiempo global en los metadatos del JSON
     content['metadata']['last_updated'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Guardar los cambios definitivos de vuelta al archivo JSON
     try:
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(content, f, indent=2, ensure_ascii=False)
-        print("💾 Cambios persistidos y guardados con éxito en el archivo local.")
+        print("💾 Cambios persistidos con éxito.")
     except Exception as e:
-        print(f"❌ Error al intentar escribir los datos en el archivo: {e}")
+        print(f"❌ Error al escribir: {e}")
 
 if __name__ == "__main__":
     update_projects()
