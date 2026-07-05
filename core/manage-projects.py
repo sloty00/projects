@@ -46,8 +46,8 @@ def update_projects():
         project['metrics']['total_uf'] = round(total_hh * project.get('metrics', {}).get('tasa_por_hora', 0.25), 2)
         return project
 
-    # 4. Operaciones CRUD (Corregidas para eliminar sin restricciones)
-    target_name = data.get('project_name', '').strip().lower()
+    # 4. Operaciones CRUD con normalización estricta
+    target_project = data.get('project_name', '').strip().lower()
 
     if action == 'add_project':
         content['projects'].append({
@@ -60,36 +60,45 @@ def update_projects():
 
     elif action == 'add_phase':
         for p in content['projects']:
-            if p['name'].strip().lower() == target_name:
+            if p['name'].strip().lower() == target_project:
                 p['phases'].append({"phase_name": data.get('phase_name'), "tasks": [], "progress": 0.0})
 
     elif action == 'add_task':
         for p in content['projects']:
-            if p['name'].strip().lower() == target_name:
+            if p['name'].strip().lower() == target_project:
                 for ph in p.get('phases', []):
-                    if ph['phase_name'] == data.get('phase_name'):
+                    if ph['phase_name'].strip() == data.get('phase_name', '').strip():
                         ph.setdefault('tasks', []).append({
                             "task_name": data.get('task_name', 'Nueva Tarea'),
                             "hh_spent": float(data.get('hh', 0)),
                             "status": data.get('status', 'en proceso').lower()
                         })
 
+    elif action == 'edit_task':
+        for p in content['projects']:
+            if p['name'].strip().lower() == target_project:
+                for ph in p.get('phases', []):
+                    if ph['phase_name'].strip() == data.get('phase_name', '').strip():
+                        for t in ph.get('tasks', []):
+                            if t['task_name'].strip() == data.get('original_task_name', '').strip():
+                                t['task_name'] = data.get('task_name')
+                                t['hh_spent'] = float(data.get('hh', 0))
+                                t['status'] = data.get('status', 'en proceso').lower()
+
     elif action == 'delete_task':
         for p in content['projects']:
-            if p['name'].strip().lower() == target_name:
+            if p['name'].strip().lower() == target_project:
                 for ph in p.get('phases', []):
-                    if ph['phase_name'] == data.get('phase_name'):
-                        ph['tasks'] = [t for t in ph.get('tasks', []) if t['task_name'] != data.get('task_name')]
+                    if ph['phase_name'].strip() == data.get('phase_name', '').strip():
+                        ph['tasks'] = [t for t in ph.get('tasks', []) if t['task_name'].strip() != data.get('task_name', '').strip()]
 
     elif action == 'delete_phase':
         for p in content['projects']:
-            if p['name'].strip().lower() == target_name:
-                # Eliminación directa sin restricciones
-                p['phases'] = [ph for ph in p.get('phases', []) if ph['phase_name'] != data.get('phase_name')]
+            if p['name'].strip().lower() == target_project:
+                p['phases'] = [ph for ph in p.get('phases', []) if ph['phase_name'].strip() != data.get('phase_name', '').strip()]
 
     elif action == 'delete_project':
-        # Eliminación directa sin restricciones
-        content['projects'] = [p for p in content['projects'] if p['name'].strip().lower() != target_name]
+        content['projects'] = [p for p in content['projects'] if p['name'].strip().lower() != target_project]
 
     # 5. Persistencia
     for p in content['projects']:
@@ -100,7 +109,7 @@ def update_projects():
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(content, f, indent=2, ensure_ascii=False)
     
-    print(f"✅ Acción '{action}' completada.")
+    print(f"✅ Acción '{action}' ejecutada con éxito.")
 
 if __name__ == "__main__":
     update_projects()
