@@ -1,6 +1,5 @@
 import json
 import os
-import sys
 from datetime import datetime
 
 def update_projects():
@@ -74,14 +73,11 @@ def update_projects():
         print(f"✅ Proyecto '{new_p['name']}' inyectado.")
 
     elif action == 'add_phase':
-        project_found = False
         for p in content['projects']:
             if p['name'].strip().lower() == target_name:
                 p['phases'].append({"phase_name": data.get('phase_name'), "tasks": [], "progress": 0.0})
-                project_found = True
-                print(f"✅ Fase '{data.get('phase_name')}' añadida a {p['name']}.")
+                print(f"✅ Fase '{data.get('phase_name')}' añadida.")
                 break
-        if not project_found: print(f"⚠️ No se encontró el proyecto '{target_name}'")
 
     elif action == 'add_task':
         for p in content['projects']:
@@ -94,8 +90,40 @@ def update_projects():
                             "status": data.get('status', 'en proceso').lower()
                         }
                         phase.setdefault('tasks', []).append(new_task)
-                        print(f"✅ Tarea añadida a {phase['phase_name']}.")
+                        print(f"✅ Tarea añadida.")
                         break
+
+    # --- NUEVAS OPERACIONES DE ELIMINACIÓN ---
+    elif action == 'delete_task':
+        for p in content['projects']:
+            if p['name'].strip().lower() == target_name:
+                for phase in p.get('phases', []):
+                    if phase['phase_name'] == data.get('phase_name'):
+                        phase['tasks'] = [t for t in phase.get('tasks', []) if t['task_name'] != data.get('task_name')]
+                        print(f"✅ Tarea eliminada.")
+                        break
+
+    elif action == 'delete_phase':
+        for p in content['projects']:
+            if p['name'].strip().lower() == target_name:
+                for phase in p.get('phases', []):
+                    if phase['phase_name'] == data.get('phase_name'):
+                        if not phase.get('tasks'):
+                            p['phases'] = [ph for ph in p['phases'] if ph['phase_name'] != phase['phase_name']]
+                            print(f"✅ Fase eliminada.")
+                        else:
+                            print(f"⚠️ Error: La fase tiene tareas pendientes.")
+                        break
+
+    elif action == 'delete_project':
+        for i, p in enumerate(content['projects']):
+            if p['name'].strip().lower() == target_name:
+                if not p.get('phases'):
+                    del content['projects'][i]
+                    print(f"✅ Proyecto eliminado.")
+                else:
+                    print(f"⚠️ Error: El proyecto tiene fases asociadas.")
+                break
 
     # 6. Guardar cambios
     for i in range(len(content['projects'])):
