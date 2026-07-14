@@ -1,8 +1,3 @@
-Para que tu README.md esté a la altura de la arquitectura que has diseñado, debe ser técnico, directo y transparente. No necesita adornos, necesita explicarle a cualquier colega (o cliente) cómo funciona este motor de gestión.
-
-Aquí tienes una propuesta robusta:
-
-Markdown
 # System Engine: Project Management Orchestrator
 
 ## Visión General
