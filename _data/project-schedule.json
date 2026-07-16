@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "last_updated": "2026-07-16 22:18:44"
+    "last_updated": "2026-07-16 22:20:54"
   },
   "projects": [
     {
@@ -20,6 +20,11 @@
       "phases": [
         {
           "phase_name": "Fase 1",
+          "tasks": [],
+          "progress": 0
+        },
+        {
+          "phase_name": "Fase 2",
           "tasks": [],
           "progress": 0
         }
