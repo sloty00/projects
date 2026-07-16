@@ -1,6 +1,23 @@
 {
   "metadata": {
-    "last_updated": "2026-07-05 23:40:21"
+    "last_updated": "2026-07-16 22:16:16"
   },
-  "projects": []
+  "projects": [
+    {
+      "name": "Crear Base de Datos.",
+      "status": "Activo",
+      "dates": {
+        "contract_start": "2026-07-16",
+        "contract_end": "2026-07-31"
+      },
+      "metrics": {
+        "uf_valor_referencia": 38000.0,
+        "tasa_por_hora": 0.25,
+        "total_progress": 0,
+        "total_hh": 0,
+        "total_uf": 0.0
+      },
+      "phases": []
+    }
+  ]
 }
